@@ -170,6 +170,45 @@
   </div>
 </div>
 
+  <!-- AIプロンプト生成モーダル -->
+  <div id="modal-prompt" class="modal-overlay" onclick="closeModal('modal-prompt')">
+    <div class="modal-sheet" onclick="event.stopPropagation()" style="max-height:90vh;overflow-y:auto;">
+      <div class="modal-title">🤖 AIトレーニングプログラム生成</div>
+      <div style="font-size:13px;color:#555;margin-bottom:14px;">目標グレードと期間を入力してプロンプトを生成。ClaudeやChatGPTに貼り付けるだけで個別プログラムが作成されます。</div>
+      <div class="form-row" style="margin-bottom:12px;">
+        <div class="form-group">
+          <label class="form-label">目標グレード（ボルダー）</label>
+          <input class="form-input" id="pm-target-grade" type="text" placeholder="V8（初段）">
+        </div>
+        <div class="form-group">
+          <label class="form-label">トレーニング期間</label>
+          <input class="form-input" id="pm-duration" type="text" placeholder="3ヶ月">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label">週のクライミング頻度</label>
+        <select class="form-select" id="pm-freq">
+          <option value="週1〜2回">週1〜2回</option>
+          <option value="週2〜3回" selected>週2〜3回</option>
+          <option value="週3〜4回">週3〜4回</option>
+          <option value="週4回以上">週4回以上</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="form-label">その他・特記事項（任意）</label>
+        <input class="form-input" id="pm-notes" type="text" placeholder="例：腰痛持ち、ジムのみ">
+      </div>
+      <button class="btn btn-accent btn-block" onclick="generatePrompt()" style="margin-bottom:10px;">プロンプトを生成</button>
+      <div id="pm-result" style="display:none;">
+        <div style="font-size:13px;font-weight:bold;margin-bottom:6px;color:#1a3a6b;">生成されたプロンプト</div>
+        <textarea id="pm-text" style="width:100%;height:220px;font-size:12px;padding:10px;border:1.5px solid #dde1ea;border-radius:8px;resize:vertical;background:#f8f9ff;" readonly></textarea>
+        <button class="btn btn-outline btn-block" onclick="copyPrompt()" style="margin-top:8px;">📋　コピーする</button>
+        <div id="pm-copy-ok" style="display:none;text-align:center;color:#2e7d32;font-size:13px;margin-top:6px;">コピーしました！</div>
+      </div>
+      <button class="btn btn-outline btn-block" onclick="closeModal('modal-prompt')" style="margin-top:10px;">閉じる</button>
+    </div>
+  </div>
+
 <!-- ================================================================
      入力フォーム画面
      ================================================================ -->
@@ -983,6 +1022,7 @@ function renderResult(r, cmpId) {
     </div>
     <div class="action-area">
       <button class="btn btn-accent btn-block" onclick="saveRecord()">💾　この結果を保存</button>
+      <button class="btn btn-block" style="background:#e8f5e9;color:#2e7d32;border:1.5px solid #81c784;" onclick="openModal('modal-prompt')">🤖　AIプロンプト生成</button>
       ${current && records.find(x=>x.id===current.id) ? `<button class="btn btn-outline btn-block" onclick="editRecord()">✏️　編集・追記</button>` : ''}
       <button class="btn btn-outline btn-block" onclick="showScreen('home')">← ホームに戻る</button>
       ${current && records.find(x=>x.id===current.id) ? `<button class="btn btn-block" style="background:#ffebee;color:#c62828;border:1.5px solid #e57373;" onclick="deleteRecord('${current.id}')">🗑　この記録を削除</button>` : ''}
@@ -1120,6 +1160,93 @@ function editRecord() {
   sv('f-sl-l1', r.sl_l1); sv('f-sl-l2', r.sl_l2);
   sv('f-sl-rung', r.sl_rung); sv('f-sl-dist', r.sl_dist);
   showScreen('form');
+}
+
+// ─── AIプロンプト生成 ─────────────────────────────────────────
+function generatePrompt() {
+  const r = current;
+  if (!r) return;
+  const ev = calcEval(r);
+  const targetGrade = document.getElementById('pm-target-grade').value || '未設定';
+  const duration    = document.getElementById('pm-duration').value    || '未設定';
+  const freq        = document.getElementById('pm-freq').value;
+  const notes       = document.getElementById('pm-notes').value;
+  const genderLabel = r.gender === 'female' ? '女性' : '男性';
+  const condLabel   = {good:'絶好調', normal:'普通', tired:'疲労あり'}[r.condition] || '普通';
+
+  const line = (label, val) => val ? `・${label}：${val}` : '';
+  const evLine = (label, ev, val) => {
+    if (!ev || val === null || val === undefined) return `・${label}：未測定`;
+    return `・${label}：${val}　→　${ev.label}（${ev.txt.replace(/<[^>]+>/g,'')}）`;
+  };
+
+  const fingerVal = (() => {
+    const parts = [];
+    if (r.fi_r !== null) parts.push(`右${r.fi_r}N（${r.fi_r_pct}%BW）`);
+    if (r.fi_l !== null) parts.push(`左${r.fi_l}N（${r.fi_l_pct}%BW）`);
+    if (r.le_r !== null) parts.push(`LE右${r.le_r}N（${r.le_r_pct}%BW）`);
+    if (r.le_l !== null) parts.push(`LE左${r.le_l}N（${r.le_l_pct}%BW）`);
+    return parts.join('　') || '未測定';
+  })();
+
+  const prompt = `あなたはスポーツクライミングの専門トレーナーです。以下のフィジカル評価結果をもとに、パーソナライズされたトレーニングプログラムを作成してください。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【プロフィール】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${line('氏名', r.name)}
+${line('性別', genderLabel)}
+${line('年齢', r.age ? r.age + '歳' : null)}
+${line('身長 / 体重 / BMI', `${r.height}cm / ${r.weight}kg / BMI ${r.bmi}`)}
+${line('クライミング歴', r.years ? r.years + '年' : null)}
+${line('現在の最高グレード', r.grade)}
+${line('傷害歴・既往歴', r.injury)}
+${line('測定日コンディション', condLabel)}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【フィジカル評価結果（${r.date}）】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+・① 指力MVC（片手直腕・20mmエッジ）：${fingerVal}　→　${ev.finger ? ev.finger.label + '（' + ev.finger.txt.replace(/<[^>]+>/g,'') + '）' : '未評価'}
+${evLine('② 指持久力', ev.endurance, r.endurance !== null ? r.endurance + 'セット' : null)}
+${evLine('③ 上肢プル（利き手）', ev.pull, (() => { const v = r.dominant==='left'?r.pu_l:r.pu_r; const p = r.dominant==='left'?r.pu_l_pct:r.pu_r_pct; return v !== null ? v + 'N（' + p + '%BW）' : null; })())}
+${evLine('④ 肩ER/IR比', ev.erir, r.erir_r !== null || r.erir_l !== null ? [r.erir_r !== null ? '右'+r.erir_r : '', r.erir_l !== null ? '左'+r.erir_l : ''].filter(Boolean).join(' / ') : null)}
+${evLine('⑤ 体幹', ev.core, [r.plank !== null ? 'プランク'+r.plank+'秒' : '', r.lr !== null ? 'LR'+r.lr+'回' : ''].filter(Boolean).join(' / ') || null)}
+${evLine('⑥ AGFR', ev.agfr, r.agfr_r !== null || r.agfr_l !== null ? [r.agfr_r !== null ? '右'+r.agfr_r+'cm' : '', r.agfr_l !== null ? '左'+r.agfr_l+'cm' : ''].filter(Boolean).join(' / ') : null)}
+${evLine('⑦ Straddle', ev.straddle, r.straddle !== null ? r.straddle + 'cm' : null)}
+${evLine('⑧ 足首背屈（WBLT）', ev.ankle, r.an_r !== null || r.an_l !== null ? [r.an_r !== null ? '右'+r.an_r+'cm' : '', r.an_l !== null ? '左'+r.an_l+'cm' : ''].filter(Boolean).join(' / ') : null)}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【目標・条件】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+・目標グレード：${targetGrade}
+・期間：${duration}
+・クライミング頻度：${freq}${notes ? '\n・特記事項：' + notes : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【作成してほしい内容】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. 現状の強み・弱点の分析（評価データに基づいて）
+2. 目標グレードに向けた優先改善項目（上位3つ）
+3. 週間トレーニングスケジュール（クライミングセッション含む）
+4. 各弱点に対する具体的なエクササイズ（種目・セット数・回数・強度・頻度）
+5. ${duration}間の段階的プログレッション（月ごとの目安）
+6. 怪我予防・コンディショニングの注意点
+7. 次回フィジカルチェックで確認すべき指標
+
+できる限り具体的な数値や方法を示してください。`;
+
+  document.getElementById('pm-text').value = prompt.replace(/^[ \t]*\n/gm, '\n').trim();
+  document.getElementById('pm-result').style.display = 'block';
+  document.getElementById('pm-copy-ok').style.display = 'none';
+}
+
+function copyPrompt() {
+  const text = document.getElementById('pm-text');
+  text.select();
+  text.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(text.value).catch(() => document.execCommand('copy'));
+  document.getElementById('pm-copy-ok').style.display = 'block';
+  setTimeout(() => { document.getElementById('pm-copy-ok').style.display = 'none'; }, 2000);
 }
 
 // ─── 初期化 ───────────────────────────────────────────────────
