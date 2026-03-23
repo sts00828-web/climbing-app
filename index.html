@@ -657,11 +657,14 @@
   <!-- Step 10: ⑨ パワースラップ（任意） -->
   <div class="form-step" id="step-10">
   <div class="step-instr">
-  <b>キャンパスボード・片手チョークボールタッチ（任意）</b><br>
-  ① スタートラングを決め、反動なし・両手でぶら下がる<br>
-  ② 利き手を離し、爆発的に引き付けて片手チョークボールをタッチ<br>
-  ③ タッチできた最高点の距離（cm）または到達ラング番号を記録<br>
-  ④ 左右それぞれ2試技・最大値採用<br>
+  <b>パワースラップ（Draper et al. 2011 / IRCRAバッテリー準拠）</b><br>
+  ① スタートラング固定・両手でフルエクステンション（肘伸展）でぶら下がる<br>
+  ② <b>反動なし</b>で静止を確認してからスタート（検者が目視確認）<br>
+  ③ 爆発的に両腕で引きつけ、片手を離してできるだけ高くチョーク跡をつける<br>
+  ④ 測定値：スタートラングからチョーク跡までの距離（cm）<br>
+  　　　例：ラング間隔7cm × 到達ラング差 = 距離cm<br>
+  ⑤ 左右それぞれ2〜3試技・最大値採用<br>
+  <b>基準：</b>Elite 75–90cm以上（V9+）/ Advanced 55–75cm（V5–V9）/ Intermediate 35–55cm（V1–V4）<br>
   ※ジム実施・未測定の場合は空欄でスキップ可
 </div>
   <!-- ⑨ パワースラップ（任意） -->
@@ -1149,12 +1152,11 @@ function evalAnkle(cm) {
 }
 function evalSlap(cm) {
   if (cm === null) return null;
-  const ref = '暫定基準値（院内ノルム構築推奨）';
-  if (cm >= 90) return {s:75, label:'優秀',    cls:'badge-ex', txt:`${cm}cm：エリートレベルのパワーです。`, ref};
-  if (cm >= 80) return {s:63, label:'良好',    cls:'badge-gd', txt:`${cm}cm：良好なパワーです。`, ref};
-  if (cm >= 65) return {s:50, label:'平均',    cls:'badge-av', txt:`${cm}cm：平均的なパワーです。`, ref};
-  if (cm >= 50) return {s:42, label:'やや低い', cls:'badge-lo', txt:`${cm}cm：パワートレーニングが推奨されます。`, ref};
-  return             {s:30, label:'要改善',   cls:'badge-po', txt:`${cm}cm：ダイナミックな動作強化が必要です。`, ref};
+  const ref = 'Draper et al. 2011（IJSPP）/ Sas-Nowosielski et al. 2023 / Stien et al. 2022。ナローグリップ・反動なし・スタートラングからチョーク跡までの距離。グレードとの相関 r=0.69–0.73、ICC 0.95–0.98。';
+  if (cm >= 75) return {s:75, label:'Elite相当',    cls:'badge-ex', txt:`${cm}cm → Elite（V9–V12+・75–90cm以上）レベルの上肢パワー。`, ref};
+  if (cm >= 55) return {s:63, label:'Advanced相当', cls:'badge-gd', txt:`${cm}cm → Advanced（V5–V9・55–75cm）レベルの上肢パワー。`, ref};
+  if (cm >= 35) return {s:50, label:'Intermediate相当', cls:'badge-av', txt:`${cm}cm → Intermediate（V1–V4・35–55cm）レベルの上肢パワー。`, ref};
+  return             {s:30, label:'Novice相当',   cls:'badge-po', txt:`${cm}cm → Novice（〜V1・35cm未満）レベル。爆発的上肢パワーの強化が必要です。`, ref};
 }
 const bcls = s => s>=75?'badge-ex':s>=63?'badge-gd':s>=50?'badge-av':s>=42?'badge-lo':'badge-po';
 
@@ -1519,6 +1521,19 @@ ${evLine('⑧ 足首背屈（WBLT）', ev.ankle, r.an_r !== null || r.an_l !== n
 ・52cm超：要改善
 ・クライミングへの関連：ハイステップ・フラッグ・シーケンスの自由度に直結。値が大きい（硬い）ほどムーブの選択肢が狭まる。
 ・【注意】「38cmで良好」ではなく「38cmだから優秀」。数値が大きいほど問題がある。
+
+■ ⑨ パワースラップ（キャンパスボード）
+・定義：ナローグリップ・肘伸展フルエクステンションスタート・反動なし・片手チョーク跡距離（cm）
+・根拠：Draper et al. 2011（IJSPP）/ Sas-Nowosielski et al. 2023 / Stien et al. 2022
+・信頼性：ICC 0.95–0.98、グレードとの相関 r = 0.69–0.73
+・グレード別基準（暫定）:
+　Novice（〜V1）：35cm未満
+　Intermediate（V1–V4）：35–55cm
+　Advanced（V5–V9）：55–75cm
+　Elite（V9–V12+）：75–90cm以上
+・測定値はスタートラングからチョーク跡までの距離（cm）。高いほど優秀。
+・左右差10cm以上は弱側の上肢パワー不足として介入対象。
+・指力・プル力との組み合わせでボトルネック特定に有用。
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 【作成してほしい内容】
