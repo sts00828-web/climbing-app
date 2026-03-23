@@ -547,6 +547,7 @@ let records = [];
 let current = null;
 let chart = null;
 let cond = 'normal';
+let editingId = null;
 
 function load()  { try { records = JSON.parse(localStorage.getItem(KEY)) || []; } catch(e) { records = []; } }
 function store() { localStorage.setItem(KEY, JSON.stringify(records)); }
@@ -672,8 +673,10 @@ function submitForm() {
   const slL   = mx(gn('f-sl-l1'), gn('f-sl-l2'));
   const pct = (n) => n !== null ? +((n/bw)*100).toFixed(1) : null;
 
+  const savedId = editingId;
+  editingId = null;
   current = {
-    id: Date.now().toString(),
+    id: savedId || Date.now().toString(),
     date: gs('f-date') || new Date().toISOString().slice(0,10),
     name, age: gn('f-age'), height, weight,
     dominant: document.getElementById('f-dominant').value,
@@ -980,6 +983,7 @@ function renderResult(r, cmpId) {
     </div>
     <div class="action-area">
       <button class="btn btn-accent btn-block" onclick="saveRecord()">💾　この結果を保存</button>
+      ${current && records.find(x=>x.id===current.id) ? `<button class="btn btn-outline btn-block" onclick="editRecord()">✏️　編集・追記</button>` : ''}
       <button class="btn btn-outline btn-block" onclick="showScreen('home')">← ホームに戻る</button>
       ${current && records.find(x=>x.id===current.id) ? `<button class="btn btn-block" style="background:#ffebee;color:#c62828;border:1.5px solid #e57373;" onclick="deleteRecord('${current.id}')">🗑　この記録を削除</button>` : ''}
     </div>
@@ -1073,6 +1077,49 @@ function viewRecord(id) {
   current = r;
   renderResult(r);
   showScreen('result');
+}
+
+function editRecord() {
+  if (!current) return;
+  const r = current;
+  editingId = r.id;
+  resetForm();
+  const sv = (id, val) => { const el = document.getElementById(id); if (el && val !== null && val !== undefined) el.value = val; };
+  sv('f-name', r.name);
+  sv('f-age', r.age);
+  sv('f-height', r.height);
+  sv('f-weight', r.weight);
+  sv('f-date', r.date);
+  sv('f-years', r.years);
+  sv('f-grade', r.grade);
+  sv('f-injury', r.injury);
+  const genderEl = document.getElementById('f-gender');
+  if (genderEl && r.gender) genderEl.value = r.gender;
+  const domEl = document.getElementById('f-dominant');
+  if (domEl && r.dominant) domEl.value = r.dominant;
+  cond = r.condition || 'normal';
+  document.querySelectorAll('#cond-group .radio-btn').forEach(b => {
+    b.classList.toggle('checked', b.getAttribute('onclick').includes(`'${cond}'`));
+  });
+  sv('f-fi-r1', r.fi_r1); sv('f-fi-r2', r.fi_r2);
+  sv('f-fi-l1', r.fi_l1); sv('f-fi-l2', r.fi_l2);
+  sv('f-le-r1', r.le_r1); sv('f-le-r2', r.le_r2);
+  sv('f-le-l1', r.le_l1); sv('f-le-l2', r.le_l2);
+  sv('f-endurance', r.endurance);
+  sv('f-pu-r1', r.pu_r1); sv('f-pu-r2', r.pu_r2);
+  sv('f-pu-l1', r.pu_l1); sv('f-pu-l2', r.pu_l2);
+  sv('f-er-r1', r.er_r1); sv('f-er-r2', r.er_r2);
+  sv('f-er-l1', r.er_l1); sv('f-er-l2', r.er_l2);
+  sv('f-ir-r1', r.ir_r1); sv('f-ir-r2', r.ir_r2);
+  sv('f-ir-l1', r.ir_l1); sv('f-ir-l2', r.ir_l2);
+  sv('f-plank', r.plank); sv('f-lr', r.lr);
+  sv('f-agfr-r', r.agfr_r); sv('f-agfr-l', r.agfr_l);
+  sv('f-straddle', r.straddle);
+  sv('f-an-r1', r.an_r); sv('f-an-l1', r.an_l);
+  sv('f-sl-r1', r.sl_r1); sv('f-sl-r2', r.sl_r2);
+  sv('f-sl-l1', r.sl_l1); sv('f-sl-l2', r.sl_l2);
+  sv('f-sl-rung', r.sl_rung); sv('f-sl-dist', r.sl_dist);
+  showScreen('form');
 }
 
 // ─── 初期化 ───────────────────────────────────────────────────
