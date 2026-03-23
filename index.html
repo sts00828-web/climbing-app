@@ -185,6 +185,10 @@
           <input class="form-input" id="pm-duration" type="text" placeholder="3ヶ月">
         </div>
       </div>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label class="form-label">目標体重（kg）</label>
+        <input class="form-input" id="pm-target-weight" type="number" placeholder="例：63" step="0.1" min="30" max="150">
+      </div>
       <div class="form-group" style="margin-bottom:14px;">
         <label class="form-label">週のクライミング頻度</label>
         <select class="form-select" id="pm-freq">
@@ -1167,10 +1171,11 @@ function generatePrompt() {
   const r = current;
   if (!r) return;
   const ev = calcEval(r);
-  const targetGrade = document.getElementById('pm-target-grade').value || '未設定';
-  const duration    = document.getElementById('pm-duration').value    || '未設定';
-  const freq        = document.getElementById('pm-freq').value;
-  const notes       = document.getElementById('pm-notes').value;
+  const targetGrade  = document.getElementById('pm-target-grade').value  || '未設定';
+  const duration     = document.getElementById('pm-duration').value     || '未設定';
+  const targetWeight = document.getElementById('pm-target-weight').value;
+  const freq         = document.getElementById('pm-freq').value;
+  const notes        = document.getElementById('pm-notes').value;
   const genderLabel = r.gender === 'female' ? '女性' : '男性';
   const condLabel   = {good:'絶好調', normal:'普通', tired:'疲労あり'}[r.condition] || '普通';
 
@@ -1220,7 +1225,8 @@ ${evLine('⑧ 足首背屈（WBLT）', ev.ankle, r.an_r !== null || r.an_l !== n
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ・目標グレード：${targetGrade}
 ・期間：${duration}
-・クライミング頻度：${freq}${notes ? '\n・特記事項：' + notes : ''}
+・クライミング頻度：${freq}
+・現在体重：${r.weight}kg${targetWeight ? `　→　目標体重：${targetWeight}kg（差：${(r.weight - targetWeight).toFixed(1)}kg）` : ''}${notes ? '\n・特記事項：' + notes : ''}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 【作成してほしい内容】
