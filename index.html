@@ -253,14 +253,14 @@
 
   <!-- ① 指力MVC -->
   <div class="card">
-    <div class="card-header">① 指力MVC（20mmエッジ・ハーフクリンプ 4指・直腕）</div>
+    <div class="card-header">① 指力MVC（20mmエッジ・ハーフクリンプ 4指）</div>
     <div class="card-body">
-      <!-- 両手デッドハング（メイン） -->
-      <div style="background:#e8f0fe; border-radius:8px; padding:10px; margin-bottom:10px;">
-        <div style="font-size:12px; font-weight:bold; color:#1a3a6b; margin-bottom:6px;">★ 両手デッドハング（院内シリアル比較用）</div>
-        <div style="font-size:11px; color:#555; margin-bottom:8px;">20mmエッジ・直腕・7秒MVC・プルセンサー計測</div>
+      <!-- 片手直腕（グレード評価） -->
+      <div style="background:#e8f0fe; border-radius:8px; padding:10px; margin-bottom:12px;">
+        <div style="font-size:12px; font-weight:bold; color:#1a3a6b; margin-bottom:4px;">★ 片手・直腕（グレード評価用）</div>
+        <div style="font-size:11px; color:#555; margin-bottom:8px;">20mmエッジ・直腕・7秒MVC・プルセンサー。Berta 2025（23mmエッジ）参考値と比較。</div>
         <div class="trial-grid">
-          <span class="t-side">両手</span>
+          <span class="t-side">右</span>
           <span class="t-label">試技①</span>
           <span></span>
           <span class="t-label">試技②</span>
@@ -268,15 +268,29 @@
         </div>
         <div class="trial-grid">
           <span></span>
-          <input class="trial-input" id="f-fi-2h1" type="number" placeholder="700" min="0" max="2000">
+          <input class="trial-input" id="f-fi-r1" type="number" placeholder="400" min="0" max="999">
           <span class="t-label" style="color:#bbb;">—</span>
-          <input class="trial-input" id="f-fi-2h2" type="number" placeholder="720" min="0" max="2000">
+          <input class="trial-input" id="f-fi-r2" type="number" placeholder="407" min="0" max="999">
+          <span></span>
+        </div>
+        <div class="trial-grid" style="margin-top:6px;">
+          <span class="t-side">左</span>
+          <span class="t-label">試技①</span>
+          <span></span>
+          <span class="t-label">試技②</span>
+          <span class="t-unit">N</span>
+        </div>
+        <div class="trial-grid">
+          <span></span>
+          <input class="trial-input" id="f-fi-l1" type="number" placeholder="370" min="0" max="999">
+          <span class="t-label" style="color:#bbb;">—</span>
+          <input class="trial-input" id="f-fi-l2" type="number" placeholder="377" min="0" max="999">
           <span></span>
         </div>
       </div>
-      <!-- 片手（メイン評価） -->
-      <div style="font-size:12px; font-weight:bold; color:#1a3a6b; margin-bottom:4px; margin-top:4px;">★ 片手（直腕・プルセンサー・グレード評価用）</div>
-      <div style="font-size:11px; color:#555; margin-bottom:6px;">20mmエッジ・直腕・7秒MVC。右・左それぞれ計測。Berta 2025参考値（23mmエッジ）と比較。</div>
+      <!-- リフティングエッジ（トレーニング目安） -->
+      <div style="font-size:12px; font-weight:bold; color:#555; margin-bottom:4px;">リフティングエッジ（下から持ち上げ・トレーニング目安）</div>
+      <div style="font-size:11px; color:#888; margin-bottom:8px;">院内シリアル比較用。グレード評価には使用しない。</div>
       <div class="trial-grid">
         <span class="t-side">右</span>
         <span class="t-label">試技①</span>
@@ -286,9 +300,9 @@
       </div>
       <div class="trial-grid">
         <span></span>
-        <input class="trial-input" id="f-fi-r1" type="number" placeholder="400" min="0" max="999">
+        <input class="trial-input" id="f-le-r1" type="number" placeholder="350" min="0" max="999">
         <span class="t-label" style="color:#bbb;">—</span>
-        <input class="trial-input" id="f-fi-r2" type="number" placeholder="407" min="0" max="999">
+        <input class="trial-input" id="f-le-r2" type="number" placeholder="360" min="0" max="999">
         <span></span>
       </div>
       <div class="trial-grid" style="margin-top:6px;">
@@ -300,9 +314,9 @@
       </div>
       <div class="trial-grid">
         <span></span>
-        <input class="trial-input" id="f-fi-l1" type="number" placeholder="370" min="0" max="999">
+        <input class="trial-input" id="f-le-l1" type="number" placeholder="330" min="0" max="999">
         <span class="t-label" style="color:#bbb;">—</span>
-        <input class="trial-input" id="f-fi-l2" type="number" placeholder="377" min="0" max="999">
+        <input class="trial-input" id="f-le-l2" type="number" placeholder="338" min="0" max="999">
         <span></span>
       </div>
     </div>
@@ -622,7 +636,7 @@ function setCond(val, el) {
 
 function resetForm() {
   const ids = ['f-name','f-age','f-height','f-weight','f-date','f-years','f-grade','f-injury',
-    'f-fi-2h1','f-fi-2h2','f-fi-r1','f-fi-r2','f-fi-l1','f-fi-l2','f-endurance',
+    'f-fi-r1','f-fi-r2','f-fi-l1','f-fi-l2','f-le-r1','f-le-r2','f-le-l1','f-le-l2','f-endurance',
     'f-pu-r1','f-pu-r2','f-pu-l1','f-pu-l2',
     'f-er-r1','f-er-r2','f-er-l1','f-er-l2','f-ir-r1','f-ir-r2','f-ir-l1','f-ir-l2',
     'f-plank','f-lr','f-agfr-r','f-agfr-l','f-straddle',
@@ -642,9 +656,10 @@ function submitForm() {
   const name = gs('f-name'), weight = gn('f-weight'), height = gn('f-height');
   if (!name || !weight || !height) { alert('氏名・身長・体重は必須です。'); return; }
   const bw = weight * 9.8;
-  const f2hMax = mx(gn('f-fi-2h1'), gn('f-fi-2h2'));
   const frMax = mx(gn('f-fi-r1'), gn('f-fi-r2'));
   const flMax = mx(gn('f-fi-l1'), gn('f-fi-l2'));
+  const leRMax = mx(gn('f-le-r1'), gn('f-le-r2'));
+  const leLMax = mx(gn('f-le-l1'), gn('f-le-l2'));
   const prMax = mx(gn('f-pu-r1'), gn('f-pu-r2'));
   const plMax = mx(gn('f-pu-l1'), gn('f-pu-l2'));
   const erR   = mx(gn('f-er-r1'), gn('f-er-r2'));
@@ -665,10 +680,10 @@ function submitForm() {
     gender: document.getElementById('f-gender').value,
     years: gn('f-years'), grade: gs('f-grade'), injury: gs('f-injury'), condition: cond,
     bmi: +((weight/(height/100)**2).toFixed(1)),
-    fi_2h: f2hMax, fi_2h_pct: pct(f2hMax),
-    fi_2h1: gn('f-fi-2h1'), fi_2h2: gn('f-fi-2h2'),
     fi_r: frMax, fi_l: flMax, fi_r_pct: pct(frMax), fi_l_pct: pct(flMax),
     fi_r1: gn('f-fi-r1'), fi_r2: gn('f-fi-r2'), fi_l1: gn('f-fi-l1'), fi_l2: gn('f-fi-l2'),
+    le_r: leRMax, le_l: leLMax, le_r_pct: pct(leRMax), le_l_pct: pct(leLMax),
+    le_r1: gn('f-le-r1'), le_r2: gn('f-le-r2'), le_l1: gn('f-le-l1'), le_l2: gn('f-le-l2'),
     endurance: gn('f-endurance'),
     pu_r: prMax, pu_l: plMax, pu_r_pct: pct(prMax), pu_l_pct: pct(plMax),
     pu_r1: gn('f-pu-r1'), pu_r2: gn('f-pu-r2'), pu_l1: gn('f-pu-l1'), pu_l2: gn('f-pu-l2'),
@@ -846,7 +861,7 @@ const bcls = s => s>=75?'badge-ex':s>=63?'badge-gd':s>=50?'badge-av':s>=42?'badg
 function calcEval(r) {
   const dominant = r.dominant;
   const fiAvgPct = (r.fi_r_pct!==null && r.fi_l_pct!==null) ? (r.fi_r_pct+r.fi_l_pct)/2 : (r.fi_r_pct??r.fi_l_pct);
-  const fingerEv = r.fi_2h_pct !== null ? evalFinger2h(r.fi_2h_pct, r.gender) : evalFinger(fiAvgPct, r.gender);
+  const fingerEv = evalFinger(fiAvgPct, r.gender);
   const puDom    = dominant==='left' ? r.pu_l_pct : r.pu_r_pct;
   const erirAvg  = (r.erir_r!==null && r.erir_l!==null) ? (r.erir_r+r.erir_l)/2 : (r.erir_r??r.erir_l);
   const agfrMin  = (r.agfr_r!==null && r.agfr_l!==null) ? Math.min(r.agfr_r, r.agfr_l) : (r.agfr_r??r.agfr_l);
@@ -944,10 +959,12 @@ function renderResult(r, cmpId) {
             ${eRow('⓪ BMI', r.bmi?`${r.bmi}`:'—', ev.bmi)}
             ${eRow('① 指力', (() => {
               const parts = [];
-              if (r.fi_2h !== null) parts.push(`両手DH ${r.fi_2h}N（${r.fi_2h_pct}%BW）`);
-              if (r.fi_r !== null)  parts.push(`右 ${r.fi_r}N（${r.fi_r_pct}%BW）`);
-              if (r.fi_l !== null)  parts.push(`左 ${r.fi_l}N（${r.fi_l_pct}%BW）`);
-return parts.join('<br>') || '—';
+              if (r.fi_r !== null) parts.push(`右 ${r.fi_r}N（${r.fi_r_pct}%BW）`);
+              if (r.fi_l !== null) parts.push(`左 ${r.fi_l}N（${r.fi_l_pct}%BW）`);
+              if (r.le_r !== null || r.le_l !== null) {
+                parts.push(`<span style="color:#777;font-size:11px;">LE: ${r.le_r!==null?`右${r.le_r}N（${r.le_r_pct}%BW）`:''}${r.le_r!==null&&r.le_l!==null?' / ':''}${r.le_l!==null?`左${r.le_l}N（${r.le_l_pct}%BW）`:''}</span>`);
+              }
+              return parts.join('<br>') || '—';
             })(), ev.finger)}
             ${eRow('② 持久力', r.endurance!==null?`${r.endurance}セット`:'—', ev.endurance)}
             ${eRow('③ 上肢プル', [r.pu_r!==null?`右 ${r.pu_r}N<br>${r.pu_r_pct}%BW`:'', r.pu_l!==null?`左 ${r.pu_l}N<br>${r.pu_l_pct}%BW`:''].filter(Boolean).join('<br>')||'—', ev.pull)}
