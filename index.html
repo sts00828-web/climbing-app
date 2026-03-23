@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>クライミング フィジカルチェック</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2e4057">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CLチェック">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #2e4057;
+      --accent: #4a7fcb;
+      --good: #2e7d32;
+      --warn: #e65100;
+      --bad: #c62828;
+      --bg: #f0f2f7;
+      --card: #fff;
+      --border: #dde1ea;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Hiragino Sans", "Yu Gothic", sans-serif; background: var(--bg); color: #222; font-size: 17px; min-height: 100vh; }
+    .screen { display: none; }
+    .screen.active { display: block; min-height: 100vh; }
+
+    /* ── ヘッダー ── */
+    .app-header {
+      background: var(--primary); color: #fff;
+      padding: 12px 14px; display: flex; align-items: center; gap: 8px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .app-header h1 { font-size: 18px; flex: 1; }
+    .btn-icon { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 4px 6px; }
+
+    /* ── ボタン ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 13px 20px; border-radius: 8px; font-size: 17px; font-weight: bold;
+      cursor: pointer; border: none; text-decoration: none; -webkit-tap-highlight-color: transparent;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-accent  { background: var(--accent);  color: #fff; }
+    .btn-outline { background: #fff; color: var(--primary); border: 2px solid var(--primary); }
+    .btn-block   { width: 100%; }
+
+    /* ── カード ── */
+    .card { background: var(--card); border-radius: 10px; border: 1px solid var(--border); margin: 10px 12px; overflow: hidden; }
+    .card-header { background: var(--primary); color: #fff; font-weight: bold; font-size: 15px; padding: 9px 14px; }
+    .card-body { padding: 14px; }
+
+    /* ── フォーム ── */
+    .form-group { margin-bottom: 12px; }
+    .form-label { font-size: 14px; color: #666; margin-bottom: 3px; display: block; }
+    .form-input, .form-select {
+      width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+      border-radius: 6px; font-size: 16px; background: #fffde7;
+    }
+    .form-input:focus, .form-select:focus { outline: none; border-color: var(--accent); }
+    .form-row { display: flex; gap: 10px; }
+    .form-row .form-group { flex: 1; }
+
+    /* ── 試技入力 ── */
+    .trial-grid { display: grid; grid-template-columns: 28px 1fr 24px 1fr 28px; align-items: center; gap: 4px; margin-bottom: 6px; }
+    .t-label { font-size: 12px; color: #666; text-align: center; }
+    .t-side  { font-weight: bold; font-size: 13px; }
+    .t-unit  { font-size: 11px; color: #888; }
+    .trial-input {
+      padding: 10px 6px; border: 1.5px solid var(--border); border-radius: 6px;
+      font-size: 16px; text-align: center; background: #fffde7; width: 100%;
+    }
+    .trial-input:focus { outline: none; border-color: var(--accent); }
+
+    /* ── ホーム ── */
+    .home-hero { background: var(--primary); color: #fff; padding: 20px 16px; text-align: center; }
+    .home-hero h2 { font-size: 19px; margin-bottom: 4px; }
+    .home-hero p  { font-size: 12px; opacity: 0.8; }
+    .section-label { padding: 10px 14px 4px; font-size: 11px; color: #888; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; }
+    .record-list { padding: 0 12px 80px; }
+    .record-item {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;
+    }
+    .record-icon { width: 42px; height: 42px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; flex-shrink: 0; }
+    .record-name { font-weight: bold; font-size: 15px; }
+    .record-date { font-size: 12px; color: #888; }
+    .record-info { font-size: 12px; color: #888; }
+    .empty-state { text-align: center; padding: 50px 20px; color: #999; }
+    .empty-icon  { font-size: 52px; margin-bottom: 12px; }
+    .fab { position: fixed; bottom: 24px; right: 18px; width: 58px; height: 58px; border-radius: 29px; background: var(--accent); color: #fff; font-size: 30px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.3); z-index: 50; }
+
+    /* ── モーダル ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: flex-end; }
+    .modal-overlay.open { display: flex; }
+    .modal-sheet { background: #fff; border-radius: 16px 16px 0 0; padding: 20px 16px 32px; width: 100%; }
+    .modal-title { font-weight: bold; font-size: 16px; margin-bottom: 14px; }
+
+    /* ── ラジオ ── */
+    .radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .radio-btn { display: flex; align-items: center; gap: 4px; padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 20px; cursor: pointer; font-size: 13px; }
+    .radio-btn.checked { border-color: var(--accent); background: #e8f0fe; color: var(--accent); font-weight: bold; }
+
+    /* ── 結果画面 ── */
+    .result-profile { background: var(--primary); color: #fff; padding: 14px 16px; }
+    .result-name { font-size: 20px; font-weight: bold; }
+    .result-meta { font-size: 12px; opacity: 0.85; margin-top: 3px; }
+    .chart-wrap { background: var(--card); margin: 10px 12px; border-radius: 10px; border: 1px solid var(--border); padding: 12px; text-align: center; }
+    .chart-wrap canvas { max-width: 320px; margin: 0 auto; display: block; }
+    .compare-bar { margin: 0 12px 8px; display: flex; align-items: center; gap: 8px; }
+    .compare-bar label { font-size: 12px; color: #888; flex-shrink: 0; }
+    .compare-bar select { flex: 1; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 13px; }
+    .summary-box { margin: 0 12px 10px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; display: flex; }
+    .summary-half { flex: 1; padding: 12px 10px; }
+    .summary-half:first-child { border-right: 1px solid var(--border); }
+    .summary-title { font-size: 12px; font-weight: bold; margin-bottom: 6px; }
+    .summary-title.good { color: var(--good); }
+    .summary-title.weak { color: var(--bad); }
+    .summary-item { font-size: 12px; color: #666; line-height: 1.6; }
+    .diff-note { margin: 0 12px 10px; background: #fff3e0; border-left: 3px solid #e65100; padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: 12px; color: #555; }
+    .cond-note { margin: 8px 12px 0; background: #fff8e1; border-left: 3px solid #f9a825; padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: 12px; color: #555; }
+    .eval-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .eval-table th { background: var(--primary); color: #fff; padding: 7px 6px; text-align: center; }
+    .eval-table td { border: 1px solid #eee; padding: 7px 6px; vertical-align: top; }
+    .eval-table tr:nth-child(even) td { background: #fafafa; }
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 10px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+    .badge-ex { background: #c8e6c9; color: #1b5e20; }
+    .badge-gd { background: #dcedc8; color: #33691e; }
+    .badge-av { background: #f5f5f5; color: #555; border: 1px solid #ccc; }
+    .badge-lo { background: #ffe0b2; color: #bf360c; }
+    .badge-po { background: #ffcdd2; color: #b71c1c; }
+    .badge-na { background: #eee; color: #888; }
+    .action-area { padding: 12px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 30px; }
+
+    .pb-safe { padding-bottom: 80px; }
+    .mt-8 { margin-top: 8px; }
+    .gap-8 { gap: 8px; }
+  </style>
+</head>
+<body>
+
+<!-- ================================================================
+     ホーム画面
+     ================================================================ -->
+<div id="screen-home" class="screen active">
+  <div class="app-header">
+    <h1>🧗 クライミング フィジカルチェック</h1>
+    <button class="btn-icon" onclick="openModal('modal-menu')" title="メニュー">⋯</button>
+  </div>
+  <div class="home-hero">
+    <h2>フィジカル評価アプリ</h2>
+    <p>測定値を入力してレーダーチャートで確認・比較</p>
+  </div>
+  <div class="section-label">過去の記録</div>
+  <div class="record-list" id="record-list"></div>
+  <button class="fab" onclick="startNew()">＋</button>
+
+  <!-- メニューモーダル -->
+  <div id="modal-menu" class="modal-overlay" onclick="closeModal('modal-menu')">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-title">メニュー</div>
+      <button class="btn btn-outline btn-block" onclick="doExport()">📤 バックアップ（JSONエクスポート）</button>
+      <div style="height:10px;"></div>
+      <button class="btn btn-outline btn-block" onclick="document.getElementById('import-file').click()">📥 バックアップから復元（JSONインポート）</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="doImport(event)">
+      <div style="height:10px;"></div>
+      <button class="btn btn-outline btn-block" onclick="closeModal('modal-menu')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     入力フォーム画面
+     ================================================================ -->
+<div id="screen-form" class="screen">
+  <div class="app-header">
+    <button class="btn-icon" onclick="showScreen('home')">←</button>
+    <h1>測定データ入力</h1>
+  </div>
+  <div class="pb-safe">
+
+  <!-- 基本情報 -->
+  <div class="card">
+    <div class="card-header">基本情報</div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group" style="flex:2;">
+          <label class="form-label">氏名 *</label>
+          <input class="form-input" id="f-name" type="text" placeholder="鈴木 達也">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label class="form-label">年齢</label>
+          <input class="form-input" id="f-age" type="number" placeholder="30" min="10" max="80">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">身長 (cm) *</label>
+          <input class="form-input" id="f-height" type="number" placeholder="170" step="0.1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">体重 (kg) *</label>
+          <input class="form-input" id="f-weight" type="number" placeholder="65" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">測定日</label>
+          <input class="form-input" id="f-date" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">利き手</label>
+          <select class="form-select" id="f-dominant">
+            <option value="right">右</option>
+            <option value="left">左</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">歴 (年)</label>
+          <input class="form-input" id="f-years" type="number" placeholder="5" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">B最高グレード</label>
+          <input class="form-input" id="f-grade" type="text" placeholder="V6">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">傷害歴・既往歴</label>
+        <input class="form-input" id="f-injury" type="text" placeholder="特になし">
+      </div>
+      <div class="form-group">
+        <label class="form-label">当日コンディション</label>
+        <div class="radio-group" id="cond-group">
+          <div class="radio-btn" onclick="setCond('good',this)">絶好調</div>
+          <div class="radio-btn checked" onclick="setCond('normal',this)">普通</div>
+          <div class="radio-btn" onclick="setCond('tired',this)">疲労あり</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ① 指力MVC -->
+  <div class="card">
+    <div class="card-header">① 指力MVC（20mmエッジ・ハーフクリンプ 4指）</div>
+    <div class="card-body">
+      <!-- 両手デッドハング（メイン） -->
+      <div style="background:#e8f0fe; border-radius:8px; padding:10px; margin-bottom:10px;">
+        <div style="font-size:12px; font-weight:bold; color:#1a3a6b; margin-bottom:6px;">★ 両手デッドハング（メイン評価・Berta 2025準拠）</div>
+        <div style="font-size:11px; color:#555; margin-bottom:8px;">ハングボード20mmエッジ・7秒MVC・プルセンサー計測</div>
+        <div class="trial-grid">
+          <span class="t-side">両手</span>
+          <span class="t-label">試技①</span>
+          <span></span>
+          <span class="t-label">試技②</span>
+          <span class="t-unit">N</span>
+        </div>
+        <div class="trial-grid">
+          <span></span>
+          <input class="trial-input" id="f-fi-2h1" type="number" placeholder="700" min="0" max="2000">
+          <span class="t-label" style="color:#bbb;">—</span>
+          <input class="trial-input" id="f-fi-2h2" type="number" placeholder="720" min="0" max="2000">
+          <span></span>
+        </div>
+      </div>
+      <!-- 片手HHD（オプション） -->
+      <div style="font-size:11px; color:#888; margin-bottom:6px;">片手リフティングエッジ（左右差確認時のみ）</div>
+      <div class="trial-grid">
+        <span class="t-side">右</span>
+        <span class="t-label">試技①</span>
+        <span></span>
+        <span class="t-label">試技②</span>
+        <span class="t-unit">N</span>
+      </div>
+      <div class="trial-grid">
+        <span></span>
+        <input class="trial-input" id="f-fi-r1" type="number" placeholder="400" min="0" max="999">
+        <span class="t-label" style="color:#bbb;">—</span>
+        <input class="trial-input" id="f-fi-r2" type="number" placeholder="407" min="0" max="999">
+        <span></span>
+      </div>
+      <div class="trial-grid" style="margin-top:6px;">
+        <span class="t-side">左</span>
+        <span class="t-label">試技①</span>
+        <span></span>
+        <span class="t-label">試技②</span>
+        <span class="t-unit">N</span>
+      </div>
+      <div class="trial-grid">
+        <span></span>
+        <input class="trial-input" id="f-fi-l1" type="number" placeholder="370" min="0" max="999">
+        <span class="t-label" style="color:#bbb;">—</span>
+        <input class="trial-input" id="f-fi-l2" type="number" placeholder="377" min="0" max="999">
+        <span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 指持久力 -->
+  <div class="card">
+    <div class="card-header">② 指持久力（インターミット・7s on / 3s off）</div>
+    <div class="card-body">
+      <div style="font-size:11px; color:#888; margin-bottom:10px;">20mmエッジ・ハーフクリンプ・自重。フォーム崩れで終了</div>
+      <div style="display:flex; align-items:center; justify-content:center; gap:12px;">
+        <span style="font-weight:bold; font-size:14px;">限界セット数</span>
+        <input class="form-input" id="f-endurance" type="number" placeholder="10" min="0" max="50" style="max-width:80px; text-align:center; font-size:20px; font-weight:bold;">
+        <span style="font-size:13px; color:#666;">セット</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 上肢プル -->
+  <div class="card">
+    <div class="card-header">③ 上肢プル（HHD等尺性プル・肘90°屈曲位）</div>
+    <div class="card-body">
+      <div class="trial-grid">
+        <span class="t-side">右</span>
+        <span class="t-label">試技①</span><span></span>
+        <span class="t-label">試技②</span>
+        <span class="t-unit">N</span>
+      </div>
+      <div class="trial-grid">
+        <span></span>
+        <input class="trial-input" id="f-pu-r1" type="number" placeholder="380" min="0" max="999">
+        <span class="t-label" style="color:#bbb;">—</span>
+        <input class="trial-input" id="f-pu-r2" type="number" placeholder="387" min="0" max="999">
+        <span></span>
+      </div>
+      <div class="trial-grid" style="margin-top:6px;">
+        <span class="t-side">左</span>
+        <span class="t-label">試技①</span><span></span>
+        <span class="t-label">試技②</span>
+        <span class="t-unit">N</span>
+      </div>
+      <div class="trial-grid">
+        <span></span>
+        <input class="trial-input" id="f-pu-l1" type="number" placeholder="500" min="0" max="999">
+        <span class="t-label" style="color:#bbb;">—</span>
+        <input class="trial-input" id="f-pu-l2" type="number" placeholder="519" min="0" max="999">
+        <span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ④ 肩ER/IR -->
+  <div class="card">
+    <div class="card-header">④ 肩外旋（ER）・内旋（IR）筋力【90/90位】</div>
+    <div class="card-body">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div>
+          <div class="form-label" style="font-weight:bold;">ER（外旋）右</div>
+          <div style="display:flex; gap:6px; margin-bottom:6px;">
+            <input class="trial-input" id="f-er-r1" type="number" placeholder="①" min="0" max="500" style="flex:1;">
+            <input class="trial-input" id="f-er-r2" type="number" placeholder="②" min="0" max="500" style="flex:1;">
+            <span class="t-unit" style="align-self:center;">N</span>
+          </div>
+          <div class="form-label" style="font-weight:bold;">IR（内旋）右</div>
+          <div style="display:flex; gap:6px;">
+            <input class="trial-input" id="f-ir-r1" type="number" placeholder="①" min="0" max="500" style="flex:1;">
+            <input class="trial-input" id="f-ir-r2" type="number" placeholder="②" min="0" max="500" style="flex:1;">
+            <span class="t-unit" style="align-self:center;">N</span>
+          </div>
+        </div>
+        <div>
+          <div class="form-label" style="font-weight:bold;">ER（外旋）左</div>
+          <div style="display:flex; gap:6px; margin-bottom:6px;">
+            <input class="trial-input" id="f-er-l1" type="number" placeholder="①" min="0" max="500" style="flex:1;">
+            <input class="trial-input" id="f-er-l2" type="number" placeholder="②" min="0" max="500" style="flex:1;">
+            <span class="t-unit" style="align-self:center;">N</span>
+          </div>
+          <div class="form-label" style="font-weight:bold;">IR（内旋）左</div>
+          <div style="display:flex; gap:6px;">
+            <input class="trial-input" id="f-ir-l1" type="number" placeholder="①" min="0" max="500" style="flex:1;">
+            <input class="trial-input" id="f-ir-l2" type="number" placeholder="②" min="0" max="500" style="flex:1;">
+            <span class="t-unit" style="align-self:center;">N</span>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:11px; color:#888; margin-top:8px;">ER/IR比：≥0.75 良好　0.65〜0.74 許容　&lt;0.65 要介入</div>
+    </div>
+  </div>
+
+  <!-- ⑤ 体幹 -->
+  <div class="card">
+    <div class="card-header">⑤ 体幹（フロントプランク・ハンギングLR）</div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">フロントプランク (秒)</label>
+          <input class="form-input" id="f-plank" type="number" placeholder="90" min="0" max="600" style="text-align:center;">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ハンギングLR (回)</label>
+          <input class="form-input" id="f-lr" type="number" placeholder="15" min="0" max="50" style="text-align:center;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑥ AGFR -->
+  <div class="card">
+    <div class="card-header">⑥ AGFR（足挙上高）</div>
+    <div class="card-body">
+      <div style="font-size:11px; color:#888; margin-bottom:8px;">壁から23cm・外旋させながら側方挙上・内果高を計測</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">右 (cm)</label>
+          <input class="form-input" id="f-agfr-r" type="number" placeholder="105" step="0.5" style="text-align:center;">
+        </div>
+        <div class="form-group">
+          <label class="form-label">左 (cm)</label>
+          <input class="form-input" id="f-agfr-l" type="number" placeholder="110" step="0.5" style="text-align:center;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑦ Straddle-Stand -->
+  <div class="card">
+    <div class="card-header">⑦ Straddle-Stand（恥骨-壁距離）</div>
+    <div class="card-body">
+      <div style="font-size:11px; color:#888; margin-bottom:8px;">壁向き開脚立ち・値が小さいほど優秀（エリート平均 38.2cm）</div>
+      <div class="form-group">
+        <label class="form-label">恥骨-壁距離 (cm)</label>
+        <input class="form-input" id="f-straddle" type="number" placeholder="45" step="0.5" style="text-align:center; font-size:22px; font-weight:bold;">
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑧ 足首背屈 -->
+  <div class="card">
+    <div class="card-header">⑧ 足首背屈（WBLT・母趾-壁距離）</div>
+    <div class="card-body">
+      <div style="font-size:11px; color:#888; margin-bottom:8px;">母趾先端→壁。踵が浮かずに膝が壁タッチできる最大距離。大きいほど良好。（目標≥12cm）</div>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+        <span class="t-side">右</span>
+        <input class="trial-input" id="f-an-r1" type="number" placeholder="9.0" step="0.5" min="0" max="25" style="max-width:100px;">
+        <span style="font-size:14px; color:#666;">cm</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span class="t-side">左</span>
+        <input class="trial-input" id="f-an-l1" type="number" placeholder="9.5" step="0.5" min="0" max="25" style="max-width:100px;">
+        <span style="font-size:14px; color:#666;">cm</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑨ パワースラップ（任意） -->
+  <div class="card">
+    <div class="card-header" style="background:#555;">⑨ パワースラップ（キャンパスボード）　<span style="font-weight:normal; font-size:11px;">※ジム実施・任意</span></div>
+    <div class="card-body">
+      <div style="font-size:11px; color:#888; margin-bottom:8px;">反動なし・爆発的懸垂・片手チョークタッチ。未測定の場合は空欄でOK</div>
+      <div class="trial-grid">
+        <span class="t-side">右</span>
+        <span class="t-label">試技①</span><span></span>
+        <span class="t-label">試技②</span>
+        <span class="t-unit">cm</span>
+      </div>
+      <div class="trial-grid">
+        <span></span>
+        <input class="trial-input" id="f-sl-r1" type="number" placeholder="" min="0" max="200">
+        <span class="t-label" style="color:#bbb;">—</span>
+        <input class="trial-input" id="f-sl-r2" type="number" placeholder="" min="0" max="200">
+        <span></span>
+      </div>
+      <div class="trial-grid" style="margin-top:6px;">
+        <span class="t-side">左</span>
+        <span class="t-label">試技①</span><span></span>
+        <span class="t-label">試技②</span>
+        <span class="t-unit">cm</span>
+      </div>
+      <div class="trial-grid">
+        <span></span>
+        <input class="trial-input" id="f-sl-l1" type="number" placeholder="" min="0" max="200">
+        <span class="t-label" style="color:#bbb;">—</span>
+        <input class="trial-input" id="f-sl-l2" type="number" placeholder="" min="0" max="200">
+        <span></span>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <div class="form-group">
+          <label class="form-label">スタートラング番号</label>
+          <input class="form-input" id="f-sl-rung" type="number" placeholder="1" min="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ラング間距離 (cm)</label>
+          <input class="form-input" id="f-sl-dist" type="number" placeholder="22" step="0.5">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 送信ボタン -->
+  <div style="padding: 0 12px 20px;">
+    <button class="btn btn-accent btn-block" onclick="submitForm()" style="font-size:17px; padding:16px;">
+      📊　分析結果を見る
+    </button>
+  </div>
+
+  </div><!-- /pb-safe -->
+</div>
+
+<!-- ================================================================
+     結果画面
+     ================================================================ -->
+<div id="screen-result" class="screen">
+  <div class="app-header">
+    <button class="btn-icon" onclick="showScreen('home')">←</button>
+    <h1>分析結果</h1>
+    <button class="btn-icon" onclick="saveRecord()" title="保存">💾</button>
+  </div>
+  <div id="result-body"></div>
+</div>
+
+<!-- ================================================================
+     JavaScript
+     ================================================================ -->
+<script>
+// ─── ストレージ ──────────────────────────────────────────────
+const KEY = 'climbing_records_v1';
+let records = [];
+let current = null;
+let chart = null;
+let cond = 'normal';
+
+function load()  { try { records = JSON.parse(localStorage.getItem(KEY)) || []; } catch(e) { records = []; } }
+function store() { localStorage.setItem(KEY, JSON.stringify(records)); }
+
+// ─── ナビゲーション ───────────────────────────────────────────
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+  if (name === 'home') renderHome();
+}
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ─── ホーム ───────────────────────────────────────────────────
+function renderHome() {
+  load();
+  const list = document.getElementById('record-list');
+  if (!records.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🧗</div><div style="font-weight:bold;margin-bottom:6px;">まだ記録がありません</div><div style="font-size:13px;">右下の ＋ ボタンで測定を始めましょう</div></div>`;
+    return;
+  }
+  const sorted = [...records].sort((a,b) => b.date.localeCompare(a.date));
+  list.innerHTML = sorted.map(r => {
+    const bmi = r.height && r.weight ? (r.weight/(r.height/100)**2).toFixed(1) : '—';
+    return `<div class="record-item">
+      <div class="record-icon" onclick="viewRecord('${r.id}')">🧗</div>
+      <div style="flex:1;min-width:0;" onclick="viewRecord('${r.id}')">
+        <div class="record-name">${r.name||'—'}</div>
+        <div class="record-date">${fmtDate(r.date)}</div>
+        <div class="record-info">BMI ${bmi}　${r.grade?'B: '+r.grade:''}　${r.years?r.years+'年':''}</div>
+      </div>
+      <button onclick="deleteRecord('${r.id}')" style="background:none;border:none;color:#e57373;font-size:20px;padding:8px;cursor:pointer;flex-shrink:0;" title="削除">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  const x = new Date(d);
+  return `${x.getFullYear()}年${x.getMonth()+1}月${x.getDate()}日`;
+}
+
+// ─── バックアップ ─────────────────────────────────────────────
+function doExport() {
+  const b = new Blob([JSON.stringify(records, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = `climbing-check-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  closeModal('modal-menu');
+}
+function doImport(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (Array.isArray(data)) {
+        load();
+        const ids = new Set(records.map(x => x.id));
+        const added = data.filter(x => !ids.has(x.id));
+        records = [...records, ...added];
+        store();
+        renderHome();
+        alert(`${added.length}件をインポートしました。`);
+      }
+    } catch(err) { alert('ファイルの読み込みに失敗しました。'); }
+  };
+  r.readAsText(f);
+  e.target.value = '';
+  closeModal('modal-menu');
+}
+
+// ─── フォーム ─────────────────────────────────────────────────
+function startNew() {
+  resetForm();
+  showScreen('form');
+}
+
+function setCond(val, el) {
+  cond = val;
+  document.querySelectorAll('#cond-group .radio-btn').forEach(b => b.classList.remove('checked'));
+  el.classList.add('checked');
+}
+
+function resetForm() {
+  const ids = ['f-name','f-age','f-height','f-weight','f-date','f-years','f-grade','f-injury',
+    'f-fi-2h1','f-fi-2h2','f-fi-r1','f-fi-r2','f-fi-l1','f-fi-l2','f-endurance',
+    'f-pu-r1','f-pu-r2','f-pu-l1','f-pu-l2',
+    'f-er-r1','f-er-r2','f-er-l1','f-er-l2','f-ir-r1','f-ir-r2','f-ir-l1','f-ir-l2',
+    'f-plank','f-lr','f-agfr-r','f-agfr-l','f-straddle',
+    'f-an-r1','f-an-l1',
+    'f-sl-r1','f-sl-r2','f-sl-l1','f-sl-l2','f-sl-rung','f-sl-dist'];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+  cond = 'normal';
+  document.querySelectorAll('#cond-group .radio-btn').forEach((b,i) => b.classList.toggle('checked', i===1));
+}
+
+const gn = id => { const v = parseFloat(document.getElementById(id)?.value); return isNaN(v) ? null : v; };
+const gs = id => document.getElementById(id)?.value?.trim() || '';
+const mx = (...a) => { const v = a.filter(x => x !== null); return v.length ? Math.max(...v) : null; };
+
+function submitForm() {
+  const name = gs('f-name'), weight = gn('f-weight'), height = gn('f-height');
+  if (!name || !weight || !height) { alert('氏名・身長・体重は必須です。'); return; }
+  const bw = weight * 9.8;
+  const f2hMax = mx(gn('f-fi-2h1'), gn('f-fi-2h2'));
+  const frMax = mx(gn('f-fi-r1'), gn('f-fi-r2'));
+  const flMax = mx(gn('f-fi-l1'), gn('f-fi-l2'));
+  const prMax = mx(gn('f-pu-r1'), gn('f-pu-r2'));
+  const plMax = mx(gn('f-pu-l1'), gn('f-pu-l2'));
+  const erR   = mx(gn('f-er-r1'), gn('f-er-r2'));
+  const erL   = mx(gn('f-er-l1'), gn('f-er-l2'));
+  const irR   = mx(gn('f-ir-r1'), gn('f-ir-r2'));
+  const irL   = mx(gn('f-ir-l1'), gn('f-ir-l2'));
+  const anR   = gn('f-an-r1');
+  const anL   = gn('f-an-l1');
+  const slR   = mx(gn('f-sl-r1'), gn('f-sl-r2'));
+  const slL   = mx(gn('f-sl-l1'), gn('f-sl-l2'));
+  const pct = (n) => n !== null ? +((n/bw)*100).toFixed(1) : null;
+
+  current = {
+    id: Date.now().toString(),
+    date: gs('f-date') || new Date().toISOString().slice(0,10),
+    name, age: gn('f-age'), height, weight,
+    dominant: document.getElementById('f-dominant').value,
+    years: gn('f-years'), grade: gs('f-grade'), injury: gs('f-injury'), condition: cond,
+    bmi: +((weight/(height/100)**2).toFixed(1)),
+    fi_2h: f2hMax, fi_2h_pct: pct(f2hMax),
+    fi_2h1: gn('f-fi-2h1'), fi_2h2: gn('f-fi-2h2'),
+    fi_r: frMax, fi_l: flMax, fi_r_pct: pct(frMax), fi_l_pct: pct(flMax),
+    fi_r1: gn('f-fi-r1'), fi_r2: gn('f-fi-r2'), fi_l1: gn('f-fi-l1'), fi_l2: gn('f-fi-l2'),
+    endurance: gn('f-endurance'),
+    pu_r: prMax, pu_l: plMax, pu_r_pct: pct(prMax), pu_l_pct: pct(plMax),
+    pu_r1: gn('f-pu-r1'), pu_r2: gn('f-pu-r2'), pu_l1: gn('f-pu-l1'), pu_l2: gn('f-pu-l2'),
+    er_r: erR, er_l: erL, ir_r: irR, ir_l: irL,
+    er_r1: gn('f-er-r1'), er_r2: gn('f-er-r2'), er_l1: gn('f-er-l1'), er_l2: gn('f-er-l2'),
+    ir_r1: gn('f-ir-r1'), ir_r2: gn('f-ir-r2'), ir_l1: gn('f-ir-l1'), ir_l2: gn('f-ir-l2'),
+    erir_r: (erR && irR) ? +((erR/irR).toFixed(2)) : null,
+    erir_l: (erL && irL) ? +((erL/irL).toFixed(2)) : null,
+    plank: gn('f-plank'), lr: gn('f-lr'),
+    agfr_r: gn('f-agfr-r'), agfr_l: gn('f-agfr-l'),
+    straddle: gn('f-straddle'),
+    an_r: anR, an_l: anL,
+    sl_r: slR, sl_l: slL,
+    sl_r1: gn('f-sl-r1'), sl_r2: gn('f-sl-r2'), sl_l1: gn('f-sl-l1'), sl_l2: gn('f-sl-l2'),
+    sl_rung: gn('f-sl-rung'), sl_dist: gn('f-sl-dist'),
+  };
+  renderResult(current);
+  showScreen('result');
+}
+
+// ─── 評価ロジック ─────────────────────────────────────────────
+function evalBMI(v) {
+  if (v === null) return null;
+  const ref = 'Watts et al. 2003 / Berta & Michailov 2025（エリート男性平均：20.5–21.5）';
+  if (v >= 18.5 && v <= 22.9) return {s:63, label:'良好',    cls:'badge-gd', txt:'クライマーに適した体組成です。', ref};
+  if (v < 18.5)               return {s:42, label:'低体重',  cls:'badge-lo', txt:'骨密度・筋量に注意してください。', ref};
+  if (v < 25)                 return {s:42, label:'やや高め', cls:'badge-lo', txt:'体重比が指力に影響する可能性があります。', ref};
+  return                            {s:30, label:'要注意',   cls:'badge-po', txt:'体組成の改善を検討してください。', ref};
+}
+function evalFinger2h(pct) {
+  // 両手デッドハング実測（Berta 2025準拠）
+  if (pct === null) return null;
+  const ref = 'Berta & Michailov 2025（n=185男性）：20mmエッジ7秒MVC・片手ずつ測定。V8相当（IRCRA 15-19）規範値中央値：95–110%BW/hand。※本測定方式（両手DH）は測定原理が異なるため院内シリアル比較に使用。';
+  if (pct >= 135) return {s:75, label:'高い',    cls:'badge-ex', txt:`両手DH ${pct}%BW。院内ベースラインとして記録してください。`, ref};
+  if (pct >= 110) return {s:63, label:'やや高い', cls:'badge-gd', txt:`両手DH ${pct}%BW。院内ベースラインとして記録してください。`, ref};
+  if (pct >= 90)  return {s:50, label:'中程度',  cls:'badge-av', txt:`両手DH ${pct}%BW。院内ベースラインとして記録してください。`, ref};
+  if (pct >= 70)  return {s:42, label:'やや低い', cls:'badge-lo', txt:`両手DH ${pct}%BW。指力強化が推奨されます。`, ref};
+  return               {s:30, label:'低い',     cls:'badge-po', txt:`両手DH ${pct}%BW。指力強化が最優先です。`, ref};
+}
+function evalFinger(pct) {
+  // 片手リフティングエッジ（左右差確認用・学術規範値未確立）
+  if (pct === null) return null;
+  const ref = '片手リフティングエッジHHD（院内シリアル比較用）。Berta & Michailov 2025（V8規範値95–110%BW/hand）は直腕・固定なし測定のため直接比較不可。左右差と経時変化のモニタリングに使用。';
+  if (pct >= 70) return {s:75, label:'高い',    cls:'badge-ex', txt:`片手 ${pct}%BW。院内ベースラインとして記録してください。`, ref};
+  if (pct >= 60) return {s:63, label:'やや高い', cls:'badge-gd', txt:`片手 ${pct}%BW。院内ベースラインとして記録してください。`, ref};
+  if (pct >= 50) return {s:50, label:'中程度',  cls:'badge-av', txt:`片手 ${pct}%BW。院内ベースラインとして記録してください。`, ref};
+  if (pct >= 40) return {s:42, label:'やや低い', cls:'badge-lo', txt:`片手 ${pct}%BW。指力強化が推奨されます。`, ref};
+  return               {s:30, label:'低い',     cls:'badge-po', txt:`片手 ${pct}%BW。指力強化が最優先です。`, ref};
+}
+function evalEndurance(v) {
+  if (v === null) return null;
+  const ref = 'Berta & Michailov et al. 2025（7s on / 3s off インターミット）：上級V4–V7目安10–15セット、エリートV7–V10目安16–20セット';
+  if (v >= 16) return {s:75, label:'優秀',    cls:'badge-ex', txt:`${v}セット：エリート（V7–V10）レベルです。`, ref};
+  if (v >= 10) return {s:63, label:'良好',    cls:'badge-gd', txt:`${v}セット：上級〜エリート下位の持久力です。`, ref};
+  if (v >= 7)  return {s:50, label:'平均',    cls:'badge-av', txt:`${v}セット：上級（V4–V7）水準です。`, ref};
+  if (v >= 4)  return {s:42, label:'やや低い', cls:'badge-lo', txt:`${v}セット：持久力向上が推奨されます。`, ref};
+  return             {s:30, label:'要改善',   cls:'badge-po', txt:`${v}セット：指持久力トレーニングを強化してください。`, ref};
+}
+function evalPull(pct) {
+  if (pct === null) return null;
+  const ref = '肘90°等尺性（HHD）。%BW学術規範値は未確立。利き手側を評価。左右差≥15%で要注意。';
+  if (pct >= 90) return {s:75, label:'優秀',    cls:'badge-ex', txt:`${pct}%BW：非常に高い上肢プル能力です。`, ref};
+  if (pct >= 75) return {s:63, label:'良好',    cls:'badge-gd', txt:`${pct}%BW：良好な上肢プル能力です。`, ref};
+  if (pct >= 60) return {s:50, label:'平均',    cls:'badge-av', txt:`${pct}%BW：標準的な上肢プルです。`, ref};
+  if (pct >= 45) return {s:42, label:'やや低い', cls:'badge-lo', txt:`${pct}%BW：上肢プル強化が推奨されます。`, ref};
+  return               {s:30, label:'要改善',   cls:'badge-po', txt:`${pct}%BW：上肢プルの強化が必要です。`, ref};
+}
+function evalERIR(ratio) {
+  // 通常IR>ER（比<1.0）が正常。高比率（ER>IR）も低比率（IR過多）も異常。
+  if (ratio === null) return null;
+  const ref = 'Greenfield 1990（正常：0.65–0.75）/ Sheps 2009（クライマー平均：0.79）/ Bradley 2023';
+  if (ratio > 1.20) return {s:30, label:'要確認',   cls:'badge-po', txt:`ER/IR ${ratio}：ER>IR（通常IRが優位）。測定肢位の再確認・専門家評価を推奨。`, ref};
+  if (ratio > 1.05) return {s:42, label:'やや高い',  cls:'badge-lo', txt:`ER/IR ${ratio}：IR相対的弱化の可能性あり。肩甲下筋強化を検討してください。`, ref};
+  if (ratio >= 0.65) return {s:75, label:'良好',    cls:'badge-gd', txt:`ER/IR ${ratio}：正常範囲内（クライマー平均 0.79）。`, ref};
+  if (ratio >= 0.55) return {s:42, label:'やや低い', cls:'badge-lo', txt:`ER/IR ${ratio}：外旋筋強化が必要です（正常下限 0.65）。`, ref};
+  return                   {s:30, label:'要介入',   cls:'badge-po', txt:`ER/IR ${ratio}：肩インジャリーリスクあり。専門家評価を推奨します。`, ref};
+}
+function evalCore(plank, lr) {
+  if (plank === null && lr === null) return null;
+  const ref = 'McGill 2007（プランク：エリート目安90–120秒）/ FSCレビュー（ハンギングLR：エリート目安15–20回）';
+  const sp = plank !== null ? (plank>=120?75:plank>=90?63:plank>=60?50:plank>=30?42:30) : 50;
+  const sl = lr    !== null ? (lr>=20?75:lr>=15?63:lr>=10?50:lr>=5?42:30)               : 50;
+  const s = Math.round((sp+sl)/2);
+  const parts = [plank!==null?`プランク${plank}秒`:'', lr!==null?`LR${lr}回`:''].filter(Boolean).join('・');
+  const txt = `${parts}：${s>=63?'体幹は良好な水準です。':s>=50?'体幹は平均的です。継続強化を推奨します。':'体幹強化が必要です。'}`;
+  return {s, label: s>=75?'優秀':s>=63?'良好':s>=50?'平均':s>=42?'やや低い':'要改善', cls: bcls(s), txt, ref};
+}
+function evalAGFR(cm) {
+  if (cm === null) return null;
+  const ref = 'Draper et al.（AGFR）：初級平均 103.7cm / エリート平均 114.0cm。左右差≥5cmで注意。';
+  if (cm >= 114) return {s:75, label:'優秀',    cls:'badge-ex', txt:`${cm}cm：エリートレベル（≥114cm）の股関節可動性です。`, ref};
+  if (cm >= 108) return {s:63, label:'良好',    cls:'badge-gd', txt:`${cm}cm：良好な股関節可動性です（初級〜エリート中間以上）。`, ref};
+  if (cm >= 103) return {s:50, label:'平均',    cls:'badge-av', txt:`${cm}cm：初級平均（103.7cm）水準。フロッグストレッチを継続してください。`, ref};
+  if (cm >= 90)  return {s:42, label:'やや低い', cls:'badge-lo', txt:`${cm}cm：初級平均（103.7cm）を下回ります。股関節複合可動域の改善が必要です。`, ref};
+  return               {s:30, label:'要改善',   cls:'badge-po', txt:`${cm}cm：股関節可動性が大きく不足しています。日常的なストレッチを推奨します。`, ref};
+}
+function evalStraddle(cm) {
+  if (cm === null) return null;
+  const ref = 'Draga et al.（Straddle-Stand）：エリート平均 38.2cm（距離が小さいほど優秀）';
+  if (cm <= 38) return {s:75, label:'優秀',    cls:'badge-ex', txt:`${cm}cm：エリート平均（38.2cm）以内の優れた可動性です。`, ref};
+  if (cm <= 44) return {s:63, label:'良好',    cls:'badge-gd', txt:`${cm}cm：良好な股関節開脚可動性です。`, ref};
+  if (cm <= 52) return {s:50, label:'平均',    cls:'badge-av', txt:`${cm}cm：エリート平均より${(cm-38.2).toFixed(1)}cm大きい状態です。`, ref};
+  if (cm <= 60) return {s:42, label:'やや低い', cls:'badge-lo', txt:`${cm}cm：股関節開脚可動域の改善が推奨されます。`, ref};
+  return             {s:30, label:'要改善',   cls:'badge-po', txt:`${cm}cm：股関節開脚制限あり。専門的なストレッチを推奨します。`, ref};
+}
+function evalAnkle(cm) {
+  if (cm === null) return null;
+  const ref = 'Bennell et al. 1998 / 理学療法科学 2008（WBLT母趾-壁距離）：健常若年男性平均12.0±3.0cm / クライミング目標≥12cm / 臨床下限9cm / 左右差≥1.5cmで注意';
+  if (cm >= 14) return {s:75, label:'優秀',    cls:'badge-ex', txt:`${cm}cm：優れた足首背屈可動性です（≥14cm）。`, ref};
+  if (cm >= 12) return {s:63, label:'良好',    cls:'badge-gd', txt:`${cm}cm：クライミング目標（≥12cm）を達成しています。`, ref};
+  if (cm >= 9)  return {s:42, label:'やや低い', cls:'badge-lo', txt:`${cm}cm：クライミング目標（12cm）未達。WBLTストレッチを継続してください。`, ref};
+  return             {s:30, label:'要改善',   cls:'badge-po', txt:`${cm}cm：臨床的な背屈制限（<9cm）。専門家評価を推奨します。`, ref};
+}
+function evalSlap(cm) {
+  if (cm === null) return null;
+  const ref = '暫定基準値（院内ノルム構築推奨）';
+  if (cm >= 90) return {s:75, label:'優秀',    cls:'badge-ex', txt:`${cm}cm：エリートレベルのパワーです。`, ref};
+  if (cm >= 80) return {s:63, label:'良好',    cls:'badge-gd', txt:`${cm}cm：良好なパワーです。`, ref};
+  if (cm >= 65) return {s:50, label:'平均',    cls:'badge-av', txt:`${cm}cm：平均的なパワーです。`, ref};
+  if (cm >= 50) return {s:42, label:'やや低い', cls:'badge-lo', txt:`${cm}cm：パワートレーニングが推奨されます。`, ref};
+  return             {s:30, label:'要改善',   cls:'badge-po', txt:`${cm}cm：ダイナミックな動作強化が必要です。`, ref};
+}
+const bcls = s => s>=75?'badge-ex':s>=63?'badge-gd':s>=50?'badge-av':s>=42?'badge-lo':'badge-po';
+
+function calcEval(r) {
+  const dominant = r.dominant;
+  const fiAvgPct = (r.fi_r_pct!==null && r.fi_l_pct!==null) ? (r.fi_r_pct+r.fi_l_pct)/2 : (r.fi_r_pct??r.fi_l_pct);
+  const fingerEv = r.fi_2h_pct !== null ? evalFinger2h(r.fi_2h_pct) : evalFinger(fiAvgPct);
+  const puDom    = dominant==='left' ? r.pu_l_pct : r.pu_r_pct;
+  const erirAvg  = (r.erir_r!==null && r.erir_l!==null) ? (r.erir_r+r.erir_l)/2 : (r.erir_r??r.erir_l);
+  const agfrMin  = (r.agfr_r!==null && r.agfr_l!==null) ? Math.min(r.agfr_r, r.agfr_l) : (r.agfr_r??r.agfr_l);
+  const anMin    = (r.an_r!==null && r.an_l!==null) ? Math.min(r.an_r, r.an_l) : (r.an_r??r.an_l);
+  const slDom    = dominant==='left' ? r.sl_l : r.sl_r;
+  return {
+    bmi:       evalBMI(r.bmi),
+    finger:    fingerEv,
+    endurance: evalEndurance(r.endurance),
+    pull:      evalPull(puDom),
+    erir:      evalERIR(erirAvg),
+    core:      evalCore(r.plank, r.lr),
+    agfr:      evalAGFR(agfrMin),
+    straddle:  evalStraddle(r.straddle),
+    ankle:     evalAnkle(anMin),
+    slap:      evalSlap(slDom),
+  };
+}
+
+function radarScores(r) {
+  const e = calcEval(r);
+  return [e.finger,e.endurance,e.pull,e.erir,e.core,e.agfr,e.straddle,e.ankle].map(x => x?.s ?? 50);
+}
+
+// ─── 結果画面レンダリング ─────────────────────────────────────
+function renderResult(r, cmpId) {
+  load();
+  const ev = calcEval(r);
+  const scores = radarScores(r);
+
+  const meta = [r.age?r.age+'歳':'', r.bmi?'BMI '+r.bmi:'', r.dominant==='left'?'左利き':'右利き', r.grade?'B:'+r.grade:'', r.years?r.years+'年目':''].filter(Boolean).join('　');
+
+  // 左右差チェック
+  const diffs = [];
+  if (r.fi_r_pct!==null && r.fi_l_pct!==null && Math.abs(r.fi_r_pct-r.fi_l_pct)>=15)
+    diffs.push(`指力左右差 ${Math.abs(r.fi_r_pct-r.fi_l_pct).toFixed(1)}%（基準15%超）`);
+  if (r.pu_r_pct!==null && r.pu_l_pct!==null) {
+    const big = Math.max(r.pu_r_pct, r.pu_l_pct);
+    const d = big>0 ? Math.abs(r.pu_r_pct-r.pu_l_pct)/big*100 : 0;
+    if (d >= 15) diffs.push(`上肢プル左右差 ${d.toFixed(1)}%（基準15%超）`);
+  }
+  if (r.agfr_r!==null && r.agfr_l!==null && Math.abs(r.agfr_r-r.agfr_l)>=5)
+    diffs.push(`AGFR左右差 ${Math.abs(r.agfr_r-r.agfr_l).toFixed(1)}cm（基準5cm超）`);
+  if (r.an_r!==null && r.an_l!==null && Math.abs(r.an_r-r.an_l)>=1.5)
+    diffs.push(`足首背屈左右差 ${Math.abs(r.an_r-r.an_l).toFixed(1)}cm（基準1.5cm超）`);
+
+  // 強み・弱点
+  const items = [
+    ['①指力',ev.finger], ['②持久力',ev.endurance], ['③上肢プル',ev.pull],
+    ['④肩ER/IR',ev.erir], ['⑤体幹',ev.core], ['⑥AGFR',ev.agfr],
+    ['⑦Straddle',ev.straddle], ['⑧足首',ev.ankle],
+  ].filter(([,e]) => e!==null);
+  const strengths  = items.filter(([,e]) => e.s >= 63).map(([n]) => n);
+  const weaknesses = items.filter(([,e]) => e.s <= 42).map(([n]) => n);
+
+  // 比較セレクト
+  const sameRecs  = records.filter(x => x.id!==r.id && x.name===r.name).sort((a,b)=>b.date.localeCompare(a.date));
+  const otherRecs = records.filter(x => x.id!==r.id && x.name!==r.name).sort((a,b)=>b.date.localeCompare(a.date));
+  const cmpOpts = [
+    '<option value="">（比較なし）</option>',
+    ...sameRecs.map(x => `<option value="${x.id}" ${cmpId===x.id?'selected':''}>${fmtDate(x.date)}</option>`),
+    ...otherRecs.map(x => `<option value="${x.id}" ${cmpId===x.id?'selected':''}>${x.name}（${fmtDate(x.date)}）</option>`),
+  ].join('');
+
+  document.getElementById('result-body').innerHTML = `
+    <div class="result-profile">
+      <div class="result-name">${r.name}</div>
+      <div class="result-meta">${meta}</div>
+      ${r.injury ? `<div class="result-meta">傷害歴: ${r.injury}</div>` : ''}
+      <div class="result-meta">${fmtDate(r.date)}</div>
+    </div>
+    ${r.condition==='tired' ? `<div class="cond-note">⚠️ <strong>疲労あり：</strong>②③は過少評価の可能性があります。標準コンディションで再測定を推奨します。</div>` : ''}
+    <div class="compare-bar" style="margin-top:10px;">
+      <label>比較：</label>
+      <select id="cmp-sel" onchange="updateChart(this.value)">${cmpOpts}</select>
+    </div>
+    <div class="chart-wrap"><canvas id="radar-chart" width="320" height="260"></canvas></div>
+    <div class="summary-box">
+      <div class="summary-half">
+        <div class="summary-title good">💪 強み</div>
+        ${strengths.length ? strengths.map(s=>`<div class="summary-item">✓ ${s}</div>`).join('') : '<div class="summary-item">—</div>'}
+      </div>
+      <div class="summary-half">
+        <div class="summary-title weak">⚠ 要強化</div>
+        ${weaknesses.length ? weaknesses.map(s=>`<div class="summary-item">△ ${s}</div>`).join('') : '<div class="summary-item">—</div>'}
+      </div>
+    </div>
+    ${diffs.length ? `<div class="diff-note"><strong>左右差注意：</strong><br>${diffs.join('<br>')}</div>` : ''}
+    <div class="card">
+      <div class="card-header">評価結果一覧</div>
+      <div style="overflow-x:auto;">
+        <table class="eval-table">
+          <thead><tr><th style="width:20%">項目</th><th style="width:28%">測定値</th><th>コメント</th><th style="width:14%">評価</th></tr></thead>
+          <tbody>
+            ${eRow('⓪ BMI', r.bmi?`${r.bmi}`:'—', ev.bmi)}
+            ${eRow('① 指力', (() => {
+              const parts = [];
+              if (r.fi_2h !== null) parts.push(`両手DH ${r.fi_2h}N（${r.fi_2h_pct}%BW）`);
+              if (r.fi_r !== null)  parts.push(`右 ${r.fi_r}N（${r.fi_r_pct}%BW）`);
+              if (r.fi_l !== null)  parts.push(`左 ${r.fi_l}N（${r.fi_l_pct}%BW）`);
+return parts.join('<br>') || '—';
+            })(), ev.finger)}
+            ${eRow('② 持久力', r.endurance!==null?`${r.endurance}セット`:'—', ev.endurance)}
+            ${eRow('③ 上肢プル', [r.pu_r!==null?`右 ${r.pu_r}N<br>${r.pu_r_pct}%BW`:'', r.pu_l!==null?`左 ${r.pu_l}N<br>${r.pu_l_pct}%BW`:''].filter(Boolean).join('<br>')||'—', ev.pull)}
+            ${eRow('④ 肩ER/IR', [r.erir_r!==null?`右 ${r.erir_r}`:'', r.erir_l!==null?`左 ${r.erir_l}`:''].filter(Boolean).join('<br>')||'—', ev.erir, sideBadges(r.erir_r, r.erir_l, evalERIR))}
+            ${eRow('⑤ 体幹', [r.plank!==null?`プランク ${r.plank}秒`:'', r.lr!==null?`LR ${r.lr}回`:''].filter(Boolean).join('<br>')||'—', ev.core)}
+            ${eRow('⑥ AGFR', [r.agfr_r!==null?`右 ${r.agfr_r}cm`:'', r.agfr_l!==null?`左 ${r.agfr_l}cm`:''].filter(Boolean).join('<br>')||'—', ev.agfr, sideBadges(r.agfr_r, r.agfr_l, evalAGFR))}
+            ${eRow('⑦ Straddle', r.straddle!==null?`${r.straddle}cm`:'—', ev.straddle)}
+            ${eRow('⑧ 足首背屈', [r.an_r!==null?`右 ${r.an_r}cm`:'', r.an_l!==null?`左 ${r.an_l}cm`:''].filter(Boolean).join('<br>')||'—', ev.ankle, sideBadges(r.an_r, r.an_l, evalAnkle))}
+            ${(r.sl_r!==null||r.sl_l!==null) ? eRow('⑨ パワースラップ', [r.sl_r!==null?`右 ${r.sl_r}cm`:'', r.sl_l!==null?`左 ${r.sl_l}cm`:''].filter(Boolean).join('<br>'), ev.slap) : ''}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="action-area">
+      <button class="btn btn-accent btn-block" onclick="saveRecord()">💾　この結果を保存</button>
+      <button class="btn btn-outline btn-block" onclick="showScreen('home')">← ホームに戻る</button>
+      ${current && records.find(x=>x.id===current.id) ? `<button class="btn btn-block" style="background:#ffebee;color:#c62828;border:1.5px solid #e57373;" onclick="deleteRecord('${current.id}')">🗑　この記録を削除</button>` : ''}
+    </div>
+  `;
+
+  drawChart(scores, r.name, cmpId);
+}
+
+function eRow(name, val, ev, extraBadges='') {
+  if (!ev) return `<tr><td style="font-weight:bold;font-size:12px;">${name}</td><td style="font-size:11px;">${val||'—'}</td><td style="font-size:11px;color:#888;">—</td><td><span class="badge badge-na">未入力</span></td></tr>`;
+  const refHtml = ev.ref ? `<div style="font-size:10px;color:#999;margin-top:3px;">📖 ${ev.ref}</div>` : '';
+  const badgeCol = extraBadges || `<span class="badge ${ev.cls}">${ev.label}</span>`;
+  return `<tr><td style="font-weight:bold;font-size:12px;">${name}</td><td style="font-size:11px;">${val}</td><td style="font-size:11px;color:#555;">${ev.txt}${refHtml}</td><td>${badgeCol}</td></tr>`;
+}
+function sideBadges(rVal, lVal, evalFn) {
+  const parts = [];
+  if (rVal !== null) { const e = evalFn(rVal); parts.push(`<div>右 <span class="badge ${e.cls}">${e.label}</span></div>`); }
+  if (lVal !== null) { const e = evalFn(lVal); parts.push(`<div>左 <span class="badge ${e.cls}">${e.label}</span></div>`); }
+  return parts.join('');
+}
+
+// ─── レーダーチャート ─────────────────────────────────────────
+function drawChart(scores, name, cmpId) {
+  const ctx = document.getElementById('radar-chart');
+  if (!ctx) return;
+  if (chart) { chart.destroy(); chart = null; }
+  const labels = ['①指力','②持久力','③上肢プル','④肩ER/IR','⑤体幹','⑥AGFR','⑦Straddle','⑧足首'];
+  const datasets = [{
+    label: name, data: scores,
+    backgroundColor: 'rgba(46,64,87,0.15)', borderColor: 'rgba(46,64,87,0.9)', borderWidth: 2,
+    pointBackgroundColor: scores.map(s => s<=30?'#c62828':s>=63?'#2e7d32':'#e65100'), pointRadius: 5,
+  }];
+  if (cmpId) {
+    const c = records.find(x => x.id===cmpId);
+    if (c) {
+      const cs = radarScores(c);
+      datasets.push({
+        label: `${c.name}（${fmtDate(c.date)}）`, data: cs,
+        backgroundColor: 'rgba(74,127,203,0.08)', borderColor: 'rgba(74,127,203,0.7)',
+        borderWidth: 2, borderDash: [5,4],
+        pointBackgroundColor: 'rgba(74,127,203,0.7)', pointRadius: 4,
+      });
+    }
+  }
+  chart = new Chart(ctx, {
+    type: 'radar', data: { labels, datasets },
+    options: {
+      responsive: false,
+      scales: { r: {
+        min: 20, max: 80,
+        ticks: { stepSize:10, font:{size:8}, callback: v=>({30:'要改善',42:'やや低い',50:'平均',63:'良好',75:'優秀'}[v]||'') },
+        pointLabels: { font:{size:9} },
+        grid: { color:'rgba(0,0,0,0.07)' }
+      }},
+      plugins: {
+        legend: { display:true, position:'bottom', labels:{font:{size:10},boxWidth:12} },
+        tooltip: { callbacks: { label: c=>`${c.dataset.label}: ${({30:'要改善',42:'やや低い',50:'平均',63:'良好',75:'優秀'}[c.raw]||c.raw)}` } }
+      }
+    }
+  });
+}
+
+function updateChart(cmpId) {
+  if (!current) return;
+  drawChart(radarScores(current), current.name, cmpId||null);
+}
+
+// ─── 保存・閲覧 ───────────────────────────────────────────────
+function saveRecord() {
+  if (!current) return;
+  load();
+  const idx = records.findIndex(x => x.id===current.id);
+  if (idx >= 0) { records[idx] = current; alert('更新しました。'); }
+  else          { records.push(current);  alert('保存しました。'); }
+  store();
+}
+
+function deleteRecord(id) {
+  if (!confirm('この記録を削除しますか？')) return;
+  load();
+  records = records.filter(x => x.id !== id);
+  store();
+  if (current && current.id === id) { current = null; showScreen('home'); }
+  else { renderHome(); }
+}
+
+function viewRecord(id) {
+  load();
+  const r = records.find(x => x.id===id);
+  if (!r) return;
+  current = r;
+  renderResult(r);
+  showScreen('result');
+}
+
+// ─── 初期化 ───────────────────────────────────────────────────
+load();
+renderHome();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
