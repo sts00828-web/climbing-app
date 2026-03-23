@@ -206,8 +206,11 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">測定日</label>
-          <input class="form-input" id="f-date" type="date">
+          <label class="form-label">性別 *</label>
+          <select class="form-select" id="f-gender">
+            <option value="male">男性</option>
+            <option value="female">女性</option>
+          </select>
         </div>
         <div class="form-group">
           <label class="form-label">利き手</label>
@@ -219,12 +222,18 @@
       </div>
       <div class="form-row">
         <div class="form-group">
+          <label class="form-label">測定日</label>
+          <input class="form-input" id="f-date" type="date">
+        </div>
+        <div class="form-group">
           <label class="form-label">歴 (年)</label>
           <input class="form-input" id="f-years" type="number" placeholder="5" min="0">
         </div>
+      </div>
+      <div class="form-row">
         <div class="form-group">
           <label class="form-label">B最高グレード</label>
-          <input class="form-input" id="f-grade" type="text" placeholder="V6">
+          <input class="form-input" id="f-grade" type="text" placeholder="V6（初段）">
         </div>
       </div>
       <div class="form-group">
@@ -244,12 +253,12 @@
 
   <!-- ① 指力MVC -->
   <div class="card">
-    <div class="card-header">① 指力MVC（20mmエッジ・ハーフクリンプ 4指）</div>
+    <div class="card-header">① 指力MVC（20mmエッジ・ハーフクリンプ 4指・直腕）</div>
     <div class="card-body">
       <!-- 両手デッドハング（メイン） -->
       <div style="background:#e8f0fe; border-radius:8px; padding:10px; margin-bottom:10px;">
-        <div style="font-size:12px; font-weight:bold; color:#1a3a6b; margin-bottom:6px;">★ 両手デッドハング（メイン評価・Berta 2025準拠）</div>
-        <div style="font-size:11px; color:#555; margin-bottom:8px;">ハングボード20mmエッジ・7秒MVC・プルセンサー計測</div>
+        <div style="font-size:12px; font-weight:bold; color:#1a3a6b; margin-bottom:6px;">★ 両手デッドハング（院内シリアル比較用）</div>
+        <div style="font-size:11px; color:#555; margin-bottom:8px;">20mmエッジ・直腕・7秒MVC・プルセンサー計測</div>
         <div class="trial-grid">
           <span class="t-side">両手</span>
           <span class="t-label">試技①</span>
@@ -265,8 +274,9 @@
           <span></span>
         </div>
       </div>
-      <!-- 片手HHD（オプション） -->
-      <div style="font-size:11px; color:#888; margin-bottom:6px;">片手リフティングエッジ（左右差確認時のみ）</div>
+      <!-- 片手（メイン評価） -->
+      <div style="font-size:12px; font-weight:bold; color:#1a3a6b; margin-bottom:4px; margin-top:4px;">★ 片手（直腕・プルセンサー・グレード評価用）</div>
+      <div style="font-size:11px; color:#555; margin-bottom:6px;">20mmエッジ・直腕・7秒MVC。右・左それぞれ計測。Berta 2025参考値（23mmエッジ）と比較。</div>
       <div class="trial-grid">
         <span class="t-side">右</span>
         <span class="t-label">試技①</span>
@@ -652,6 +662,7 @@ function submitForm() {
     date: gs('f-date') || new Date().toISOString().slice(0,10),
     name, age: gn('f-age'), height, weight,
     dominant: document.getElementById('f-dominant').value,
+    gender: document.getElementById('f-gender').value,
     years: gn('f-years'), grade: gs('f-grade'), injury: gs('f-injury'), condition: cond,
     bmi: +((weight/(height/100)**2).toFixed(1)),
     fi_2h: f2hMax, fi_2h_pct: pct(f2hMax),
@@ -687,25 +698,75 @@ function evalBMI(v) {
   if (v < 25)                 return {s:42, label:'やや高め', cls:'badge-lo', txt:'体重比が指力に影響する可能性があります。', ref};
   return                            {s:30, label:'要注意',   cls:'badge-po', txt:'体組成の改善を検討してください。', ref};
 }
-function evalFinger2h(pct) {
-  // 両手デッドハング実測（Berta 2025準拠）
+function evalFinger2h(pct, gender) {
+  // 両手デッドハング実測（片手換算：÷2でBerta規範値と比較）
   if (pct === null) return null;
-  const ref = 'Berta & Michailov 2025（n=185男性）：20mmエッジ7秒MVC・片手ずつ測定。V8相当（IRCRA 15-19）規範値中央値：95–110%BW/hand。※本測定方式（両手DH）は測定原理が異なるため院内シリアル比較に使用。';
-  if (pct >= 135) return {s:75, label:'高い',    cls:'badge-ex', txt:`両手DH ${pct}%BW。院内ベースラインとして記録してください。`, ref};
-  if (pct >= 110) return {s:63, label:'やや高い', cls:'badge-gd', txt:`両手DH ${pct}%BW。院内ベースラインとして記録してください。`, ref};
-  if (pct >= 90)  return {s:50, label:'中程度',  cls:'badge-av', txt:`両手DH ${pct}%BW。院内ベースラインとして記録してください。`, ref};
-  if (pct >= 70)  return {s:42, label:'やや低い', cls:'badge-lo', txt:`両手DH ${pct}%BW。指力強化が推奨されます。`, ref};
-  return               {s:30, label:'低い',     cls:'badge-po', txt:`両手DH ${pct}%BW。指力強化が最優先です。`, ref};
+  const norms = FINGER_NORMS[gender] || FINGER_NORMS.male;
+  const ref = 'Berta & Michailov 2025グレード別パーセンタイル表（片手MVC %BW）に基づく参考評価。両手DH測定値÷2を片手換算として使用（院内シリアル比較用）。';
+  const perHand = +(pct / 2).toFixed(1);
+  const [n0,n1,n2,n3] = norms;
+  if (perHand >= n3.p50) {
+    return {s:75, label:'V13以上相当', cls:'badge-ex', txt:`両手DH ${pct}%BW（片手換算 ${perHand}%BW）→ V13以上（5段〜）${fingerPercentileRange(perHand,n3)}相当`, ref};
+  }
+  if (perHand >= n2.p50) {
+    return {s:75, label:'V9–V12相当', cls:'badge-ex', txt:`両手DH ${pct}%BW（片手換算 ${perHand}%BW）→ V9–V12（初段〜4段）${fingerPercentileRange(perHand,n2)}相当`, ref};
+  }
+  if (perHand >= n1.p50) {
+    return {s:63, label:'V5–V8相当', cls:'badge-gd', txt:`両手DH ${pct}%BW（片手換算 ${perHand}%BW）→ V5–V8（2〜1級）${fingerPercentileRange(perHand,n1)}相当`, ref};
+  }
+  if (perHand >= n0.p50) {
+    return {s:50, label:'V2–V4相当', cls:'badge-av', txt:`両手DH ${pct}%BW（片手換算 ${perHand}%BW）→ V2–V4（5〜3級）${fingerPercentileRange(perHand,n0)}相当`, ref};
+  }
+  if (perHand >= n0.p10) {
+    return {s:42, label:'V2未満', cls:'badge-lo', txt:`両手DH ${pct}%BW（片手換算 ${perHand}%BW）→ V2–V4（5〜3級）下位25〜50%相当。指力強化を推奨。`, ref};
+  }
+  return {s:30, label:'要強化', cls:'badge-po', txt:`両手DH ${pct}%BW（片手換算 ${perHand}%BW）→ V2–V4の下位10%未満。指力強化が最優先です。`, ref};
 }
-function evalFinger(pct) {
-  // 片手リフティングエッジ（左右差確認用・学術規範値未確立）
+// Berta & Michailov 2025 グレード別パーセンタイル表（片手MVC %BW、直腕・20mmエッジ）
+// ※ Berta原典は23mmエッジ。本測定は20mmエッジのため参考値として使用。
+const FINGER_NORMS = {
+  male: [
+    { label:'V2–V4（5〜3級）',    p10:60, p25:65, p50:70, p75:80, p90:90 },
+    { label:'V5–V8（2〜1級）',    p10:65, p25:72, p50:80, p75:90, p90:100 },
+    { label:'V9–V12（初段〜4段）', p10:80, p25:90, p50:100, p75:110, p90:120 },
+    { label:'V13以上（5段〜）',    p10:95, p25:100, p50:105, p75:120, p90:130 },
+  ],
+  female: [
+    { label:'V2–V4（5〜3級）',    p10:45, p25:55, p50:65, p75:75, p90:85 },
+    { label:'V5–V8（2〜1級）',    p10:60, p25:68, p50:78, p75:88, p90:95 },
+    { label:'V9–V12（初段〜4段）', p10:75, p25:85, p50:95, p75:105, p90:115 },
+    { label:'V13以上（5段〜）',    p10:88, p25:92, p50:100, p75:115, p90:125 },
+  ],
+};
+function fingerPercentileRange(pct, n) {
+  if (pct >= n.p90) return '上位10%以内';
+  if (pct >= n.p75) return '上位25%以内';
+  if (pct >= n.p50) return '上位50%以内（中央値以上）';
+  if (pct >= n.p25) return '下位50%以内（中央値以下）';
+  if (pct >= n.p10) return '下位25%以内';
+  return '下位10%以内';
+}
+function evalFinger(pct, gender) {
   if (pct === null) return null;
-  const ref = '片手リフティングエッジHHD（院内シリアル比較用）。Berta & Michailov 2025（V8規範値95–110%BW/hand）は直腕・固定なし測定のため直接比較不可。左右差と経時変化のモニタリングに使用。';
-  if (pct >= 70) return {s:75, label:'高い',    cls:'badge-ex', txt:`片手 ${pct}%BW。院内ベースラインとして記録してください。`, ref};
-  if (pct >= 60) return {s:63, label:'やや高い', cls:'badge-gd', txt:`片手 ${pct}%BW。院内ベースラインとして記録してください。`, ref};
-  if (pct >= 50) return {s:50, label:'中程度',  cls:'badge-av', txt:`片手 ${pct}%BW。院内ベースラインとして記録してください。`, ref};
-  if (pct >= 40) return {s:42, label:'やや低い', cls:'badge-lo', txt:`片手 ${pct}%BW。指力強化が推奨されます。`, ref};
-  return               {s:30, label:'低い',     cls:'badge-po', txt:`片手 ${pct}%BW。指力強化が最優先です。`, ref};
+  const norms = FINGER_NORMS[gender] || FINGER_NORMS.male;
+  const ref = 'Berta & Michailov 2025（23mmエッジ7秒MVC・直腕・片手）に基づくグレード別パーセンタイル参考値。本測定は20mmエッジ・直腕・プルセンサーのため参考値として使用。左右差・経時変化のモニタリングに併用。';
+  const [n0,n1,n2,n3] = norms;
+  if (pct >= n3.p50) {
+    return {s:75, label:'V13以上相当', cls:'badge-ex', txt:`片手 ${pct}%BW → ${n3.label} ${fingerPercentileRange(pct,n3)}（中央値${n3.p50}%BW）`, ref};
+  }
+  if (pct >= n2.p50) {
+    return {s:75, label:'V9–V12相当', cls:'badge-ex', txt:`片手 ${pct}%BW → ${n2.label} ${fingerPercentileRange(pct,n2)}（中央値${n2.p50}%BW）`, ref};
+  }
+  if (pct >= n1.p50) {
+    return {s:63, label:'V5–V8相当', cls:'badge-gd', txt:`片手 ${pct}%BW → ${n1.label} ${fingerPercentileRange(pct,n1)}（中央値${n1.p50}%BW）`, ref};
+  }
+  if (pct >= n0.p50) {
+    return {s:50, label:'V2–V4相当', cls:'badge-av', txt:`片手 ${pct}%BW → ${n0.label} ${fingerPercentileRange(pct,n0)}（中央値${n0.p50}%BW）`, ref};
+  }
+  if (pct >= n0.p10) {
+    return {s:42, label:'V2未満', cls:'badge-lo', txt:`片手 ${pct}%BW → V2–V4（5〜3級）の下位25〜50%相当。指力強化を推奨（中央値${n0.p50}%BW）。`, ref};
+  }
+  return {s:30, label:'要強化', cls:'badge-po', txt:`片手 ${pct}%BW → V2–V4（5〜3級）下位10%未満（${n0.p10}%BW）。指力強化が最優先です。`, ref};
 }
 function evalEndurance(v) {
   if (v === null) return null;
@@ -785,7 +846,7 @@ const bcls = s => s>=75?'badge-ex':s>=63?'badge-gd':s>=50?'badge-av':s>=42?'badg
 function calcEval(r) {
   const dominant = r.dominant;
   const fiAvgPct = (r.fi_r_pct!==null && r.fi_l_pct!==null) ? (r.fi_r_pct+r.fi_l_pct)/2 : (r.fi_r_pct??r.fi_l_pct);
-  const fingerEv = r.fi_2h_pct !== null ? evalFinger2h(r.fi_2h_pct) : evalFinger(fiAvgPct);
+  const fingerEv = r.fi_2h_pct !== null ? evalFinger2h(r.fi_2h_pct, r.gender) : evalFinger(fiAvgPct, r.gender);
   const puDom    = dominant==='left' ? r.pu_l_pct : r.pu_r_pct;
   const erirAvg  = (r.erir_r!==null && r.erir_l!==null) ? (r.erir_r+r.erir_l)/2 : (r.erir_r??r.erir_l);
   const agfrMin  = (r.agfr_r!==null && r.agfr_l!==null) ? Math.min(r.agfr_r, r.agfr_l) : (r.agfr_r??r.agfr_l);
