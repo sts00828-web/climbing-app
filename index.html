@@ -136,6 +136,17 @@
     .pb-safe { padding-bottom: 80px; }
     .mt-8 { margin-top: 8px; }
     .gap-8 { gap: 8px; }
+
+    .form-step { display: none; }
+    .form-step.active { display: block; }
+    .step-progress { height: 4px; background: #dde1ea; }
+    .step-progress-bar { height: 100%; background: #4a7fcb; transition: width 0.3s; }
+    .step-info { padding: 8px 14px 10px; background: #fff; border-bottom: 1px solid #dde1ea; }
+    .step-counter { font-size: 12px; color: #888; }
+    .step-title { font-size: 17px; font-weight: bold; color: #2e4057; margin-top: 2px; }
+    .step-instr { background: #e8f4fd; border-left: 4px solid #4a7fcb; padding: 12px 14px; border-radius: 0 8px 8px 0; margin: 0 12px 12px; font-size: 13px; line-height: 1.8; color: #333; }
+    .step-instr b { color: #1a3a6b; }
+    .step-nav { display: flex; gap: 10px; padding: 12px 12px 32px; }
   </style>
 </head>
 <body>
@@ -219,11 +230,17 @@
 <div id="screen-form" class="screen">
   <div class="app-header">
     <button class="btn-icon" onclick="showScreen('home')">←</button>
-    <h1>測定データ入力</h1>
+    <h1 id="form-screen-title">測定データ入力</h1>
+  </div>
+  <div class="step-progress"><div class="step-progress-bar" id="step-progress-bar" style="width:10%"></div></div>
+  <div class="step-info">
+    <div class="step-counter" id="step-counter">1 / 10</div>
+    <div class="step-title" id="step-title-text">基本情報</div>
   </div>
   <div class="pb-safe">
 
-  <!-- 基本情報 -->
+  <!-- Step 1: 基本情報 -->
+  <div class="form-step active" id="step-1">
   <div class="card">
     <div class="card-header">基本情報</div>
     <div class="card-body">
@@ -293,8 +310,19 @@
       </div>
     </div>
   </div>
+  </div><!-- /step-1 -->
 
-  <!-- ① 指力MVC -->
+  <!-- Step 2: ① 指力MVC -->
+  <div class="form-step" id="step-2">
+  <div class="step-instr">
+  <b>測定方法：片手・直腕・20mmエッジ</b><br>
+  ① ウォームアップ：同エッジで軽くぶら下がり3分<br>
+  ② 肢位：直腕（肩180°）・体幹リラックス・固定なし<br>
+  ③ グリップ：ハーフクリンプ（4指第2関節90°屈曲）<br>
+  ④ 収縮：最大努力で7秒間保持<br>
+  ⑤ 試技間休息：2分以上・2試技の高い方を採用<br>
+  <b>体重計法の場合</b>：体重計に乗った状態でエッジを引き、最小値を記録
+</div>
   <div class="card">
     <div class="card-header">① 指力MVC（20mmエッジ・ハーフクリンプ 4指）</div>
     <div class="card-body">
@@ -402,7 +430,18 @@
       </div>
     </div>
   </div>
+  </div><!-- /step-2 -->
 
+  <!-- Step 3: ② 指持久力 -->
+  <div class="form-step" id="step-3">
+  <div class="step-instr">
+  <b>インターミットプロトコル（7s on / 3s off）</b><br>
+  ① 強度：最大筋力の60%相当（MVC×0.6）<br>
+  ② 20mmエッジ・ハーフクリンプ・自重<br>
+  ③ 7秒ハング → 3秒レスト を繰り返す<br>
+  ④ フォームが崩れた・保持できなくなった時点で終了<br>
+  ⑤ 完了できたセット数を記録
+</div>
   <!-- ② 指持久力 -->
   <div class="card">
     <div class="card-header">② 指持久力（インターミット・7s on / 3s off）</div>
@@ -415,7 +454,18 @@
       </div>
     </div>
   </div>
+  </div><!-- /step-3 -->
 
+  <!-- Step 4: ③ 上肢プル -->
+  <div class="form-step" id="step-4">
+  <div class="step-instr">
+  <b>HHD等尺性プル（肘90°屈曲位）</b><br>
+  ① 肢位：立位または座位・肘90°屈曲・前腕中間位<br>
+  ② 検者がHHDを手首近位に当て固定<br>
+  ③ 「引き付ける方向」に最大等尺性収縮・3〜5秒<br>
+  ④ 試技間休息：1分・2試技の高い方を採用<br>
+  ⑤ 右・左それぞれ測定
+</div>
   <!-- ③ 上肢プル -->
   <div class="card">
     <div class="card-header">③ 上肢プル（HHD等尺性プル・肘90°屈曲位）</div>
@@ -448,7 +498,18 @@
       </div>
     </div>
   </div>
+  </div><!-- /step-4 -->
 
+  <!-- Step 5: ④ 肩ER/IR -->
+  <div class="form-step" id="step-5">
+  <div class="step-instr">
+  <b>肩90/90位・HHD等尺性測定</b><br>
+  ① 肢位：肩90°外転・肘90°屈曲（90/90位）・肘は台に置く<br>
+  ② ER（外旋）：前腕を後方へ → HHDを手首に当てて抵抗<br>
+  ③ IR（内旋）：前腕を前方へ → 同様に測定<br>
+  ④ 各方向2試技・最大値採用<br>
+  <b>解釈：</b>ER/IR比 = ER値 ÷ IR値。正常は0.65〜1.05（IRが優位）
+</div>
   <!-- ④ 肩ER/IR -->
   <div class="card">
     <div class="card-header">④ 肩外旋（ER）・内旋（IR）筋力【90/90位】</div>
@@ -486,7 +547,14 @@
       <div style="font-size:11px; color:#888; margin-top:8px;">ER/IR比：≥0.75 良好　0.65〜0.74 許容　&lt;0.65 要介入</div>
     </div>
   </div>
+  </div><!-- /step-5 -->
 
+  <!-- Step 6: ⑤ 体幹 -->
+  <div class="form-step" id="step-6">
+  <div class="step-instr">
+  <b>フロントプランク</b>：肘・足先支持・腰を水平に保つ。崩れるまでの秒数<br>
+  <b>ハンギングLR（レッグレイズ）</b>：懸垂バーにぶら下がり・膝伸展で両足を水平以上まで挙上・戻す。反動なし。できた回数
+</div>
   <!-- ⑤ 体幹 -->
   <div class="card">
     <div class="card-header">⑤ 体幹（フロントプランク・ハンギングLR）</div>
@@ -503,7 +571,18 @@
       </div>
     </div>
   </div>
+  </div><!-- /step-6 -->
 
+  <!-- Step 7: ⑥ AGFR -->
+  <div class="form-step" id="step-7">
+  <div class="step-instr">
+  <b>AGFR（Active Groin Flexibility Ratio）</b><br>
+  ① 壁から23cm離れた位置に横向きで立つ<br>
+  ② 測定側の脚を外旋させながら側方へ最大挙上<br>
+  ③ 内果（内くるぶし）の床からの高さをcmで記録<br>
+  ④ 左右差15%以上で注意<br>
+  基準：ビギナー平均103.7cm・エリート平均114.0cm
+</div>
   <!-- ⑥ AGFR -->
   <div class="card">
     <div class="card-header">⑥ AGFR（足挙上高）</div>
@@ -521,7 +600,18 @@
       </div>
     </div>
   </div>
+  </div><!-- /step-7 -->
 
+  <!-- Step 8: ⑦ Straddle-Stand -->
+  <div class="form-step" id="step-8">
+  <div class="step-instr">
+  <b>Straddle-Stand（壁向き開脚・恥骨-壁距離）</b><br>
+  ① 壁に正対して立ち、両足を最大限に開脚（外転）<br>
+  ② 足裏は床・足先は壁と平行<br>
+  ③ 恥骨結合から壁までの距離（cm）を測定<br>
+  <b>判定：値が小さいほど優秀</b>（エリート平均 38.2cm）<br>
+  ※クライミングのハイステップ・フラッグの可動域に直結
+</div>
   <!-- ⑦ Straddle-Stand -->
   <div class="card">
     <div class="card-header">⑦ Straddle-Stand（恥骨-壁距離）</div>
@@ -533,7 +623,18 @@
       </div>
     </div>
   </div>
+  </div><!-- /step-8 -->
 
+  <!-- Step 9: ⑧ 足首背屈 -->
+  <div class="form-step" id="step-9">
+  <div class="step-instr">
+  <b>WBLT（Weight-Bearing Lunge Test）母趾-壁距離</b><br>
+  ① 壁に正対して立ち、測定する足を壁向きに置く<br>
+  ② 母趾を壁に近づけながら膝を壁にタッチするようにランジ<br>
+  ③ 踵が浮かない最大距離（母趾先端〜壁）をcmで記録<br>
+  ④ 1試技ずつ（右・左）<br>
+  基準：目標12cm以上・臨床下限9cm・左右差1.5cm以上で注意
+</div>
   <!-- ⑧ 足首背屈 -->
   <div class="card">
     <div class="card-header">⑧ 足首背屈（WBLT・母趾-壁距離）</div>
@@ -551,7 +652,18 @@
       </div>
     </div>
   </div>
+  </div><!-- /step-9 -->
 
+  <!-- Step 10: ⑨ パワースラップ（任意） -->
+  <div class="form-step" id="step-10">
+  <div class="step-instr">
+  <b>キャンパスボード・片手チョークボールタッチ（任意）</b><br>
+  ① スタートラングを決め、反動なし・両手でぶら下がる<br>
+  ② 利き手を離し、爆発的に引き付けて片手チョークボールをタッチ<br>
+  ③ タッチできた最高点の距離（cm）または到達ラング番号を記録<br>
+  ④ 左右それぞれ2試技・最大値採用<br>
+  ※ジム実施・未測定の場合は空欄でスキップ可
+</div>
   <!-- ⑨ パワースラップ（任意） -->
   <div class="card">
     <div class="card-header" style="background:#555;">⑨ パワースラップ（キャンパスボード）　<span style="font-weight:normal; font-size:11px;">※ジム実施・任意</span></div>
@@ -595,12 +707,11 @@
       </div>
     </div>
   </div>
+  </div><!-- /step-10 -->
 
-  <!-- 送信ボタン -->
-  <div style="padding: 0 12px 20px;">
-    <button class="btn btn-accent btn-block" onclick="submitForm()" style="font-size:17px; padding:16px;">
-      📊　分析結果を見る
-    </button>
+  <div class="step-nav">
+    <button class="btn btn-outline" id="btn-step-back" onclick="stepBack()" style="flex:1;visibility:hidden;">← 前へ</button>
+    <button class="btn btn-accent" id="btn-step-next" onclick="stepNext()" style="flex:2;">次へ →</button>
   </div>
 
   </div><!-- /pb-safe -->
@@ -630,6 +741,36 @@ let chart = null;
 let cond = 'normal';
 let editingId = null;
 let fiMethod = 'sensor';
+
+let currentStep = 1;
+const TOTAL_STEPS = 10;
+const STEP_TITLES = [
+  '基本情報',
+  '① 指力MVC',
+  '② 指持久力',
+  '③ 上肢プル',
+  '④ 肩ER/IR筋力',
+  '⑤ 体幹',
+  '⑥ AGFR（足挙上高）',
+  '⑦ Straddle-Stand',
+  '⑧ 足首背屈（WBLT）',
+  '⑨ パワースラップ（任意）',
+];
+function goToStep(n) {
+  currentStep = Math.max(1, Math.min(TOTAL_STEPS, n));
+  document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+  document.getElementById('step-' + currentStep).classList.add('active');
+  document.getElementById('step-progress-bar').style.width = (currentStep / TOTAL_STEPS * 100) + '%';
+  document.getElementById('step-counter').textContent = currentStep + ' / ' + TOTAL_STEPS;
+  document.getElementById('step-title-text').textContent = STEP_TITLES[currentStep - 1];
+  document.getElementById('btn-step-back').style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+  document.getElementById('btn-step-next').textContent = currentStep === TOTAL_STEPS ? '📊 結果を見る' : '次へ →';
+  window.scrollTo(0, 0);
+}
+function stepNext() {
+  if (currentStep === TOTAL_STEPS) { submitForm(); } else { goToStep(currentStep + 1); }
+}
+function stepBack() { goToStep(currentStep - 1); }
 
 function load()  { try { records = JSON.parse(localStorage.getItem(KEY)) || []; } catch(e) { records = []; } }
 function store() { localStorage.setItem(KEY, JSON.stringify(records)); }
@@ -708,6 +849,7 @@ function doImport(e) {
 // ─── フォーム ─────────────────────────────────────────────────
 function startNew() {
   resetForm();
+  goToStep(1);
   showScreen('form');
 }
 
@@ -769,6 +911,7 @@ function resetForm() {
   document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
   cond = 'normal';
   document.querySelectorAll('#cond-group .radio-btn').forEach((b,i) => b.classList.toggle('checked', i===1));
+  goToStep(1);
 }
 
 const gn = id => { const v = parseFloat(document.getElementById(id)?.value); return isNaN(v) ? null : v; };
@@ -1285,6 +1428,7 @@ function editRecord() {
   sv('f-sl-r1', r.sl_r1); sv('f-sl-r2', r.sl_r2);
   sv('f-sl-l1', r.sl_l1); sv('f-sl-l2', r.sl_l2);
   sv('f-sl-rung', r.sl_rung); sv('f-sl-dist', r.sl_dist);
+  goToStep(1);
   showScreen('form');
 }
 
