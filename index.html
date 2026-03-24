@@ -330,7 +330,7 @@
       <div style="margin-bottom:12px;">
         <div style="font-size:12px; color:#666; margin-bottom:6px;">測定方法</div>
         <div class="radio-group">
-          <div class="radio-btn checked" id="fi-method-sensor" onclick="setFiMethod('sensor',this)">プルセンサー（N入力）</div>
+          <div class="radio-btn checked" id="fi-method-sensor" onclick="setFiMethod('sensor',this)">プルセンサー（kg入力）</div>
           <div class="radio-btn" id="fi-method-scale" onclick="setFiMethod('scale',this)">体重計法（kg入力）</div>
         </div>
       </div>
@@ -341,46 +341,46 @@
           <div style="font-size:12px; font-weight:bold; color:#1a3a6b; margin-bottom:4px;">★ 片手・直腕（グレード評価用）</div>
           <div style="font-size:11px; color:#555; margin-bottom:8px;">20mmエッジ・直腕・7秒MVC・プルセンサー。Berta 2025（23mmエッジ）参考値と比較。</div>
           <div class="trial-grid">
-            <span class="t-side">右</span><span class="t-label">試技①</span><span></span><span class="t-label">試技②</span><span class="t-unit">N</span>
+            <span class="t-side">右</span><span class="t-label">試技①</span><span></span><span class="t-label">試技②</span><span class="t-unit">kg</span>
           </div>
           <div class="trial-grid">
             <span></span>
-            <input class="trial-input" id="f-fi-r1" type="number" placeholder="400" min="0" max="999">
+            <input class="trial-input" id="f-fi-r1" type="number" placeholder="40" min="0" max="200">
             <span class="t-label" style="color:#bbb;">—</span>
-            <input class="trial-input" id="f-fi-r2" type="number" placeholder="407" min="0" max="999">
+            <input class="trial-input" id="f-fi-r2" type="number" placeholder="41" min="0" max="200">
             <span></span>
           </div>
           <div class="trial-grid" style="margin-top:6px;">
-            <span class="t-side">左</span><span class="t-label">試技①</span><span></span><span class="t-label">試技②</span><span class="t-unit">N</span>
+            <span class="t-side">左</span><span class="t-label">試技①</span><span></span><span class="t-label">試技②</span><span class="t-unit">kg</span>
           </div>
           <div class="trial-grid">
             <span></span>
-            <input class="trial-input" id="f-fi-l1" type="number" placeholder="370" min="0" max="999">
+            <input class="trial-input" id="f-fi-l1" type="number" placeholder="37" min="0" max="200">
             <span class="t-label" style="color:#bbb;">—</span>
-            <input class="trial-input" id="f-fi-l2" type="number" placeholder="377" min="0" max="999">
+            <input class="trial-input" id="f-fi-l2" type="number" placeholder="38" min="0" max="200">
             <span></span>
           </div>
         </div>
         <div style="font-size:12px; font-weight:bold; color:#555; margin-bottom:4px;">リフティングエッジ（下から持ち上げ・トレーニング目安）</div>
         <div style="font-size:11px; color:#888; margin-bottom:8px;">院内シリアル比較用。グレード評価には使用しない。</div>
         <div class="trial-grid">
-          <span class="t-side">右</span><span class="t-label">試技①</span><span></span><span class="t-label">試技②</span><span class="t-unit">N</span>
+          <span class="t-side">右</span><span class="t-label">試技①</span><span></span><span class="t-label">試技②</span><span class="t-unit">kg</span>
         </div>
         <div class="trial-grid">
           <span></span>
-          <input class="trial-input" id="f-le-r1" type="number" placeholder="350" min="0" max="999">
+          <input class="trial-input" id="f-le-r1" type="number" placeholder="35" min="0" max="200">
           <span class="t-label" style="color:#bbb;">—</span>
-          <input class="trial-input" id="f-le-r2" type="number" placeholder="360" min="0" max="999">
+          <input class="trial-input" id="f-le-r2" type="number" placeholder="36" min="0" max="200">
           <span></span>
         </div>
         <div class="trial-grid" style="margin-top:6px;">
-          <span class="t-side">左</span><span class="t-label">試技①</span><span></span><span class="t-label">試技②</span><span class="t-unit">N</span>
+          <span class="t-side">左</span><span class="t-label">試技①</span><span></span><span class="t-label">試技②</span><span class="t-unit">kg</span>
         </div>
         <div class="trial-grid">
           <span></span>
-          <input class="trial-input" id="f-le-l1" type="number" placeholder="330" min="0" max="999">
+          <input class="trial-input" id="f-le-l1" type="number" placeholder="33" min="0" max="200">
           <span class="t-label" style="color:#bbb;">—</span>
-          <input class="trial-input" id="f-le-l2" type="number" placeholder="338" min="0" max="999">
+          <input class="trial-input" id="f-le-l2" type="number" placeholder="34" min="0" max="200">
           <span></span>
         </div>
       </div>
@@ -459,42 +459,79 @@
   <!-- Step 4: ③ 上肢プル -->
   <div class="form-step" id="step-4">
   <div class="step-instr">
-  <b>HHD等尺性プル（肘90°屈曲位）</b><br>
+  <b>【プルセンサー法】HHD等尺性プル（肘90°屈曲位）</b><br>
   ① 肢位：立位または座位・肘90°屈曲・前腕中間位<br>
   ② 検者がHHDを手首近位に当て固定<br>
   ③ 「引き付ける方向」に最大等尺性収縮・3〜5秒<br>
   ④ 試技間休息：1分・2試技の高い方を採用<br>
-  ⑤ 右・左それぞれ測定
+  <b>【体重計法】等尺性ロウ</b><br>
+  ① 体重計に乗り静止体重を確認<br>
+  ② 腰〜胸の高さに固定バーをセット<br>
+  ③ 肘90°屈曲位で固定バーを引き付ける（等尺性）<br>
+  ④ 体重計の<strong>最小値</strong>を記録。2試技の低い方を採用<br>
+  ⑤ 指力 = 体重 − 体重計最小値
 </div>
   <!-- ③ 上肢プル -->
   <div class="card">
-    <div class="card-header">③ 上肢プル（HHD等尺性プル・肘90°屈曲位）</div>
+    <div class="card-header">③ 上肢プル（等尺性プル）</div>
     <div class="card-body">
-      <div class="trial-grid">
-        <span class="t-side">右</span>
-        <span class="t-label">試技①</span><span></span>
-        <span class="t-label">試技②</span>
-        <span class="t-unit">N</span>
+      <!-- 測定方法トグル -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:12px; color:#666; margin-bottom:6px;">測定方法</div>
+        <div class="radio-group">
+          <div class="radio-btn checked" id="pu-method-sensor" onclick="setPuMethod('sensor',this)">プルセンサー（kg入力）</div>
+          <div class="radio-btn" id="pu-method-scale" onclick="setPuMethod('scale',this)">体重計法（kg入力）</div>
+        </div>
       </div>
-      <div class="trial-grid">
-        <span></span>
-        <input class="trial-input" id="f-pu-r1" type="number" placeholder="380" min="0" max="999">
-        <span class="t-label" style="color:#bbb;">—</span>
-        <input class="trial-input" id="f-pu-r2" type="number" placeholder="387" min="0" max="999">
-        <span></span>
+      <!-- センサー入力 -->
+      <div id="pu-sensor-inputs">
+        <div class="trial-grid">
+          <span class="t-side">右</span>
+          <span class="t-label">試技①</span><span></span>
+          <span class="t-label">試技②</span>
+          <span class="t-unit">kg</span>
+        </div>
+        <div class="trial-grid">
+          <span></span>
+          <input class="trial-input" id="f-pu-r1" type="number" placeholder="38" min="0" max="200">
+          <span class="t-label" style="color:#bbb;">—</span>
+          <input class="trial-input" id="f-pu-r2" type="number" placeholder="39" min="0" max="200">
+          <span></span>
+        </div>
+        <div class="trial-grid" style="margin-top:6px;">
+          <span class="t-side">左</span>
+          <span class="t-label">試技①</span><span></span>
+          <span class="t-label">試技②</span>
+          <span class="t-unit">kg</span>
+        </div>
+        <div class="trial-grid">
+          <span></span>
+          <input class="trial-input" id="f-pu-l1" type="number" placeholder="50" min="0" max="200">
+          <span class="t-label" style="color:#bbb;">—</span>
+          <input class="trial-input" id="f-pu-l2" type="number" placeholder="52" min="0" max="200">
+          <span></span>
+        </div>
       </div>
-      <div class="trial-grid" style="margin-top:6px;">
-        <span class="t-side">左</span>
-        <span class="t-label">試技①</span><span></span>
-        <span class="t-label">試技②</span>
-        <span class="t-unit">N</span>
-      </div>
-      <div class="trial-grid">
-        <span></span>
-        <input class="trial-input" id="f-pu-l1" type="number" placeholder="500" min="0" max="999">
-        <span class="t-label" style="color:#bbb;">—</span>
-        <input class="trial-input" id="f-pu-l2" type="number" placeholder="519" min="0" max="999">
-        <span></span>
+      <!-- 体重計法入力 -->
+      <div id="pu-scale-inputs" style="display:none;">
+        <div style="background:#fff3e0; border-radius:8px; padding:10px; margin-bottom:12px; font-size:11px; color:#555; line-height:1.7;">
+          <strong style="color:#e65100;">計算式：</strong>上肢プル力 = 体重 − 体重計<strong>最小値</strong>
+        </div>
+        <div style="background:#e8f0fe; border-radius:8px; padding:10px; margin-bottom:12px;">
+          <div style="font-size:12px; font-weight:bold; color:#1a3a6b; margin-bottom:8px;">体重計最小値を入力</div>
+          <div style="display:grid; grid-template-columns:28px 1fr 1fr 1fr; gap:6px; align-items:center; margin-bottom:6px;">
+            <span style="font-size:13px; font-weight:bold;">右</span>
+            <input class="trial-input" id="f-sc-pu-r1" type="number" placeholder="22.0" step="0.1" oninput="updateScaleCalc()">
+            <input class="trial-input" id="f-sc-pu-r2" type="number" placeholder="21.5" step="0.1" oninput="updateScaleCalc()">
+            <span id="sc-pu-r-result" style="font-size:12px; color:#1a3a6b; font-weight:bold;">—</span>
+          </div>
+          <div style="display:grid; grid-template-columns:28px 1fr 1fr 1fr; gap:6px; align-items:center;">
+            <span style="font-size:13px; font-weight:bold;">左</span>
+            <input class="trial-input" id="f-sc-pu-l1" type="number" placeholder="24.0" step="0.1" oninput="updateScaleCalc()">
+            <input class="trial-input" id="f-sc-pu-l2" type="number" placeholder="23.5" step="0.1" oninput="updateScaleCalc()">
+            <span id="sc-pu-l-result" style="font-size:12px; color:#1a3a6b; font-weight:bold;">—</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -518,28 +555,28 @@
         <div>
           <div class="form-label" style="font-weight:bold;">ER（外旋）右</div>
           <div style="display:flex; gap:6px; margin-bottom:6px;">
-            <input class="trial-input" id="f-er-r1" type="number" placeholder="①" min="0" max="500" style="flex:1;">
-            <input class="trial-input" id="f-er-r2" type="number" placeholder="②" min="0" max="500" style="flex:1;">
+            <input class="trial-input" id="f-er-r1" type="number" placeholder="①" min="0" max="100" style="flex:1;">
+            <input class="trial-input" id="f-er-r2" type="number" placeholder="②" min="0" max="100" style="flex:1;">
             <span class="t-unit" style="align-self:center;">N</span>
           </div>
           <div class="form-label" style="font-weight:bold;">IR（内旋）右</div>
           <div style="display:flex; gap:6px;">
-            <input class="trial-input" id="f-ir-r1" type="number" placeholder="①" min="0" max="500" style="flex:1;">
-            <input class="trial-input" id="f-ir-r2" type="number" placeholder="②" min="0" max="500" style="flex:1;">
+            <input class="trial-input" id="f-ir-r1" type="number" placeholder="①" min="0" max="100" style="flex:1;">
+            <input class="trial-input" id="f-ir-r2" type="number" placeholder="②" min="0" max="100" style="flex:1;">
             <span class="t-unit" style="align-self:center;">N</span>
           </div>
         </div>
         <div>
           <div class="form-label" style="font-weight:bold;">ER（外旋）左</div>
           <div style="display:flex; gap:6px; margin-bottom:6px;">
-            <input class="trial-input" id="f-er-l1" type="number" placeholder="①" min="0" max="500" style="flex:1;">
-            <input class="trial-input" id="f-er-l2" type="number" placeholder="②" min="0" max="500" style="flex:1;">
+            <input class="trial-input" id="f-er-l1" type="number" placeholder="①" min="0" max="100" style="flex:1;">
+            <input class="trial-input" id="f-er-l2" type="number" placeholder="②" min="0" max="100" style="flex:1;">
             <span class="t-unit" style="align-self:center;">N</span>
           </div>
           <div class="form-label" style="font-weight:bold;">IR（内旋）左</div>
           <div style="display:flex; gap:6px;">
-            <input class="trial-input" id="f-ir-l1" type="number" placeholder="①" min="0" max="500" style="flex:1;">
-            <input class="trial-input" id="f-ir-l2" type="number" placeholder="②" min="0" max="500" style="flex:1;">
+            <input class="trial-input" id="f-ir-l1" type="number" placeholder="①" min="0" max="100" style="flex:1;">
+            <input class="trial-input" id="f-ir-l2" type="number" placeholder="②" min="0" max="100" style="flex:1;">
             <span class="t-unit" style="align-self:center;">N</span>
           </div>
         </div>
@@ -744,6 +781,7 @@ let chart = null;
 let cond = 'normal';
 let editingId = null;
 let fiMethod = 'sensor';
+let puMethod = 'sensor';
 
 let currentStep = 1;
 const TOTAL_STEPS = 10;
@@ -864,6 +902,14 @@ function setFiMethod(method, el) {
   document.getElementById('fi-scale-inputs').style.display  = method === 'scale'  ? '' : 'none';
   if (method === 'scale') updateScaleCalc();
 }
+function setPuMethod(method, el) {
+  puMethod = method;
+  document.querySelectorAll('#pu-method-sensor,#pu-method-scale').forEach(b => b.classList.remove('checked'));
+  if (el) el.classList.add('checked');
+  document.getElementById('pu-sensor-inputs').style.display = method === 'sensor' ? '' : 'none';
+  document.getElementById('pu-scale-inputs').style.display  = method === 'scale'  ? '' : 'none';
+  if (method === 'scale') updateScaleCalc();
+}
 
 function updateScaleCalc() {
   const weight = parseFloat(document.getElementById('f-weight').value) || 0;
@@ -891,6 +937,9 @@ function updateScaleCalc() {
   showHang('f-sc-fi-l1','f-sc-fi-l2','sc-fi-l-result');
   showLift('f-sc-le-r1','f-sc-le-r2','sc-le-r-result');
   showLift('f-sc-le-l1','f-sc-le-l2','sc-le-l-result');
+  // 上肢プル体重計法（ハング方式：体重 − 最小値）
+  showHang('f-sc-pu-r1','f-sc-pu-r2','sc-pu-r-result');
+  showHang('f-sc-pu-l1','f-sc-pu-l2','sc-pu-l-result');
 }
 
 function setCond(val, el) {
@@ -901,11 +950,13 @@ function setCond(val, el) {
 
 function resetForm() {
   setFiMethod('sensor', document.getElementById('fi-method-sensor'));
+  setPuMethod('sensor', document.getElementById('pu-method-sensor'));
   const ids = ['f-name','f-age','f-height','f-weight','f-date','f-years','f-grade','f-injury',
     'f-fi-r1','f-fi-r2','f-fi-l1','f-fi-l2','f-le-r1','f-le-r2','f-le-l1','f-le-l2',
     'f-sc-added','f-sc-fi-r1','f-sc-fi-r2','f-sc-fi-l1','f-sc-fi-l2',
     'f-sc-le-r1','f-sc-le-r2','f-sc-le-l1','f-sc-le-l2','f-endurance',
     'f-pu-r1','f-pu-r2','f-pu-l1','f-pu-l2',
+    'f-sc-pu-r1','f-sc-pu-r2','f-sc-pu-l1','f-sc-pu-l2',
     'f-er-r1','f-er-r2','f-er-l1','f-er-l2','f-ir-r1','f-ir-r2','f-ir-l1','f-ir-l2',
     'f-plank','f-lr','f-agfr-r','f-agfr-l','f-straddle',
     'f-an-r1','f-an-l1',
@@ -924,7 +975,7 @@ const mx = (...a) => { const v = a.filter(x => x !== null); return v.length ? Ma
 function submitForm() {
   const name = gs('f-name'), weight = gn('f-weight'), height = gn('f-height');
   if (!name || !weight || !height) { alert('氏名・身長・体重は必須です。'); return; }
-  const bw = weight * 9.8;
+  const bw = weight;
   let frMax, flMax, leRMax, leLMax;
   let sc_added = null, sc_fi_r1 = null, sc_fi_r2 = null, sc_fi_l1 = null, sc_fi_l2 = null;
   let sc_le_r1 = null, sc_le_r2 = null, sc_le_l1 = null, sc_le_l2 = null;
@@ -935,13 +986,13 @@ function submitForm() {
       const v1 = gn(s1), v2 = gn(s2);
       const vals = [v1, v2].filter(v => v !== null);
       if (!vals.length) return null;
-      return +((total - Math.min(...vals)) * 9.80665).toFixed(1);
+      return +((total - Math.min(...vals))).toFixed(1);
     };
     const liftN = (s1, s2) => {
       const v1 = gn(s1), v2 = gn(s2);
       const vals = [v1, v2].filter(v => v !== null);
       if (!vals.length) return null;
-      return +((Math.max(...vals) - weight) * 9.80665).toFixed(1);
+      return +((Math.max(...vals) - weight)).toFixed(1);
     };
     frMax  = hangN('f-sc-fi-r1','f-sc-fi-r2');
     flMax  = hangN('f-sc-fi-l1','f-sc-fi-l2');
@@ -958,8 +1009,21 @@ function submitForm() {
     leRMax = mx(gn('f-le-r1'), gn('f-le-r2'));
     leLMax = mx(gn('f-le-l1'), gn('f-le-l2'));
   }
-  const prMax = mx(gn('f-pu-r1'), gn('f-pu-r2'));
-  const plMax = mx(gn('f-pu-l1'), gn('f-pu-l2'));
+  let prMax, plMax, sc_pu_r1 = null, sc_pu_r2 = null, sc_pu_l1 = null, sc_pu_l2 = null;
+  if (puMethod === 'scale') {
+    const hangPu = (s1, s2) => {
+      const vals = [gn(s1), gn(s2)].filter(v => v !== null);
+      if (!vals.length) return null;
+      return +((weight - Math.min(...vals))).toFixed(1);
+    };
+    prMax = hangPu('f-sc-pu-r1', 'f-sc-pu-r2');
+    plMax = hangPu('f-sc-pu-l1', 'f-sc-pu-l2');
+    sc_pu_r1 = gn('f-sc-pu-r1'); sc_pu_r2 = gn('f-sc-pu-r2');
+    sc_pu_l1 = gn('f-sc-pu-l1'); sc_pu_l2 = gn('f-sc-pu-l2');
+  } else {
+    prMax = mx(gn('f-pu-r1'), gn('f-pu-r2'));
+    plMax = mx(gn('f-pu-l1'), gn('f-pu-l2'));
+  }
   const erR   = mx(gn('f-er-r1'), gn('f-er-r2'));
   const erL   = mx(gn('f-er-l1'), gn('f-er-l2'));
   const irR   = mx(gn('f-ir-r1'), gn('f-ir-r2'));
@@ -988,8 +1052,10 @@ function submitForm() {
     sc_added, sc_fi_r1, sc_fi_r2, sc_fi_l1, sc_fi_l2,
     sc_le_r1, sc_le_r2, sc_le_l1, sc_le_l2,
     endurance: gn('f-endurance'),
+    pu_method: puMethod,
     pu_r: prMax, pu_l: plMax, pu_r_pct: pct(prMax), pu_l_pct: pct(plMax),
     pu_r1: gn('f-pu-r1'), pu_r2: gn('f-pu-r2'), pu_l1: gn('f-pu-l1'), pu_l2: gn('f-pu-l2'),
+    sc_pu_r1, sc_pu_r2, sc_pu_l1, sc_pu_l2,
     er_r: erR, er_l: erL, ir_r: irR, ir_l: irL,
     er_r1: gn('f-er-r1'), er_r2: gn('f-er-r2'), er_l1: gn('f-er-l1'), er_l2: gn('f-er-l2'),
     ir_r1: gn('f-ir-r1'), ir_r2: gn('f-ir-r2'), ir_l1: gn('f-ir-l1'), ir_l2: gn('f-ir-l2'),
@@ -1417,8 +1483,16 @@ function editRecord() {
     sv('f-le-l1', r.le_l1); sv('f-le-l2', r.le_l2);
   }
   sv('f-endurance', r.endurance);
-  sv('f-pu-r1', r.pu_r1); sv('f-pu-r2', r.pu_r2);
-  sv('f-pu-l1', r.pu_l1); sv('f-pu-l2', r.pu_l2);
+  const puMeth = r.pu_method || 'sensor';
+  setPuMethod(puMeth, document.getElementById('pu-method-' + puMeth));
+  if (puMeth === 'scale') {
+    sv('f-sc-pu-r1', r.sc_pu_r1); sv('f-sc-pu-r2', r.sc_pu_r2);
+    sv('f-sc-pu-l1', r.sc_pu_l1); sv('f-sc-pu-l2', r.sc_pu_l2);
+    updateScaleCalc();
+  } else {
+    sv('f-pu-r1', r.pu_r1); sv('f-pu-r2', r.pu_r2);
+    sv('f-pu-l1', r.pu_l1); sv('f-pu-l2', r.pu_l2);
+  }
   sv('f-er-r1', r.er_r1); sv('f-er-r2', r.er_r2);
   sv('f-er-l1', r.er_l1); sv('f-er-l2', r.er_l2);
   sv('f-ir-r1', r.ir_r1); sv('f-ir-r2', r.ir_r2);
